@@ -45,7 +45,7 @@ static const CGFloat titleOffset     = 25.0;
     graph.fill = [CPTFill fillWithColor:[CPTColor darkGrayColor]];
 
     // Plot area
-    graph.plotAreaFrame.paddingTop    = 20.0;
+    graph.plotAreaFrame.paddingTop    = 0.0;
     graph.plotAreaFrame.paddingBottom = 20.0;
     graph.plotAreaFrame.paddingLeft   = 20.0;
     graph.plotAreaFrame.paddingRight  = 20.0;
