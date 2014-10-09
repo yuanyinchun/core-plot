@@ -263,7 +263,7 @@
     CPTTextLayer *textLayer = [[[CPTTextLayer alloc] initWithText:yString style:hitAnnotationTextStyle] autorelease];
     symbolTextAnnotation              = [[CPTPlotSpaceAnnotation alloc] initWithPlotSpace:graph.defaultPlotSpace anchorPlotPoint:anchorPoint];
     symbolTextAnnotation.contentLayer = textLayer;
-    symbolTextAnnotation.displacement = CGPointMake(0.0, 20.0);
+    symbolTextAnnotation.displacement = CGPointMake(10.0, 0.0);
     [graph.plotAreaFrame.plotArea addAnnotation:symbolTextAnnotation];
 }
 
