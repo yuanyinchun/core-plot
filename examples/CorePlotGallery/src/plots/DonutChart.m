@@ -31,9 +31,19 @@ NSString *const outerChartName = @"Outer";
     if ( plotData == nil ) {
         plotData = [[NSMutableArray alloc] initWithObjects:
                     @20.0,
-                    @30.0,
-                    @60.0,
+                    @20.0,
+                    @40.0,
                     nil];
+        self.myPlotData=@[
+                     @[@"warning",@4,@20],
+                     @[@"notify",@1,@20],
+                     @[@"info",@6,@40],
+                     ];
+        self.myColor=@{
+                  @"warning":[UIColor blueColor],
+                  @"notify":[UIColor greenColor],
+                  @"info":[UIColor yellowColor]
+                  };
     }
 }
 
@@ -83,19 +93,17 @@ NSString *const outerChartName = @"Outer";
     piePlot.pieRadius       = outerRadius;
     piePlot.pieInnerRadius  = innerRadius + 5.0;
     piePlot.identifier      = outerChartName;
-    piePlot.labelOffset=10.0;
-    /*
-    piePlot.overlayFill=[CPTFill fillWithColor:[CPTColor orangeColor]];
-     */
-    //piePlot.borderLineStyle = whiteLineStyle;
+    piePlot.labelOffset=50.0;
+    piePlot.customizeLabelPosition=YES;
+    CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
+    lineStyle.lineColor=[CPTColor whiteColor];
+    lineStyle.lineWidth=2.0f;
+    piePlot.dataLabelLineStyle=lineStyle;
     
-    /*
-    piePlot.startAngle      = animated ? M_PI_2 : M_PI_4;
-    piePlot.endAngle        = animated ? M_PI_2 : 3.0 * M_PI_4;
-     */
-    piePlot.startAngle=3*M_PI_4;
+    //piePlot.backgroundColor=[UIColor whiteColor].CGColor;
+
+    piePlot.startAngle=M_PI;
     piePlot.sliceDirection  = CPTPieDirectionClockwise;
-    //piePlot.shadow          = whiteShadow;
     piePlot.delegate        = self;
     [graph addPlot:piePlot];
 /*
@@ -112,35 +120,7 @@ NSString *const outerChartName = @"Outer";
                      duration:1.25];
     }*/
  
-
     [piePlot release];
-
-    /*
-    // Add another pie chart
-    piePlot                 = [[CPTPieChart alloc] init];
-    piePlot.dataSource      = self;
-    piePlot.pieRadius       = animated ? 0.0 : (innerRadius - 5.0);
-    piePlot.identifier      = innerChartName;
-    piePlot.borderLineStyle = whiteLineStyle;
-    piePlot.startAngle      = M_PI_4;
-    piePlot.sliceDirection  = CPTPieDirectionClockwise;
-    piePlot.shadow          = whiteShadow;
-    piePlot.delegate        = self;
-    [graph addPlot:piePlot];
-
-    if ( animated ) {
-        [CPTAnimation animate:piePlot
-                     property:@"pieRadius"
-                         from:0.0
-                           to:innerRadius - 5.0
-                     duration:1.5
-                    withDelay:0.25
-               animationCurve:CPTAnimationCurveBounceOut
-                     delegate:self];
-    }
-
-    [piePlot release];
-    */
 }
 
 -(void)pieChart:(CPTPieChart *)plot sliceWasSelectedAtRecordIndex:(NSUInteger)index
@@ -161,7 +141,7 @@ NSString *const outerChartName = @"Outer";
     NSNumber *num;
 
     if ( fieldEnum == CPTPieChartFieldSliceWidth ) {
-        num = plotData[index];
+        num = self.myPlotData[index][2];
     }
     else {
         return @(index);
@@ -183,14 +163,30 @@ NSString *const outerChartName = @"Outer";
             whiteText.color = [CPTColor whiteColor];
         });
 
-        newLayer                 = [[[CPTTextLayer alloc] initWithText:[NSString stringWithFormat:@"%.0f", [plotData[index] floatValue]] style:whiteText] autorelease];
-        newLayer.fill            = [CPTFill fillWithColor:[CPTColor darkGrayColor]];
-        newLayer.cornerRadius    = 5.0;
-        newLayer.paddingLeft     = 3.0;
-        newLayer.paddingTop      = 3.0;
-        newLayer.paddingRight    = 3.0;
-        newLayer.paddingBottom   = 3.0;
-        newLayer.borderLineStyle = [CPTLineStyle lineStyle];
+        NSMutableAttributedString *unRead=[[NSMutableAttributedString alloc]initWithString:[_myPlotData[index][1]  stringValue ] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor whiteColor]} ];
+        
+        NSMutableString *allStr=[[NSMutableString alloc]initWithString:@"/"];
+        [allStr appendString:[_myPlotData[index][2]  stringValue ]];
+        
+        NSMutableAttributedString *all=[[NSMutableAttributedString alloc]initWithString:allStr attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:20],NSForegroundColorAttributeName:[UIColor grayColor]} ];
+        
+        NSMutableString *levelStr=[[NSMutableString  alloc] initWithString:_myPlotData[index][0]];
+        [levelStr appendString:@" "];
+        NSMutableAttributedString *level=[[NSMutableAttributedString alloc]initWithString:levelStr attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:_myColor[_myPlotData[index][0]] } ];
+        
+        NSMutableAttributedString *str=[[NSMutableAttributedString alloc]init];
+        [str appendAttributedString:level];
+        [str appendAttributedString:unRead];
+        [str appendAttributedString:all];
+        
+        newLayer=[[CPTTextLayer alloc]initWithAttributedText:str];
+        //newLayer.fill            = [CPTFill fillWithColor:[CPTColor darkGrayColor]];
+        //newLayer.cornerRadius    = 5.0;
+        //newLayer.paddingLeft     = 3.0;
+        //newLayer.paddingTop      = 3.0;
+        //newLayer.paddingRight    = 3.0;
+        //newLayer.paddingBottom   = 3.0;
+        //newLayer.borderLineStyle = [CPTLineStyle lineStyle];
     }
 
     return newLayer;
@@ -204,6 +200,15 @@ NSString *const outerChartName = @"Outer";
         result = (index == 0 ? 0.0 : 0.0);
     }
     return result;
+}
+
+-(CPTFill *)sliceFillForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)idx
+{
+    
+    UIColor *color=self.myColor[
+                 self.myPlotData[idx][0]
+                  ];
+    return [[CPTFill alloc]initWithColor:[[CPTColor alloc]initWithCGColor:  color.CGColor                                             ]];
 }
 
 #pragma mark -

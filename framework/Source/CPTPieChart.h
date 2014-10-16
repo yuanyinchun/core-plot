@@ -7,6 +7,7 @@
 @class CPTFill;
 @class CPTPieChart;
 @class CPTTextLayer;
+@class CPTMutableTextStyle;
 @class CPTLineStyle;
 
 /// @ingroup plotBindingsPieChart
@@ -202,12 +203,22 @@ typedef NS_ENUM (NSInteger, CPTPieDirection) {
 /// @name Drawing
 /// @{
 @property (nonatomic, readwrite, copy) CPTLineStyle *borderLineStyle;
+@property (nonatomic, readwrite, copy) CPTLineStyle *
+    dataLabelLineStyle;
+@property (nonatomic, readwrite, copy)
+    CPTMutableTextStyle *totalTextStyle;
+@property (nonatomic, readwrite, copy) CPTFill *shadowFill;
 @property (nonatomic, readwrite, copy) CPTFill *overlayFill;
 /// @}
 
 /// @name Data Labels
 /// @{
 @property (nonatomic, readwrite, assign) BOOL labelRotationRelativeToRadius;
+@property (nonatomic, readwrite, assign) BOOL
+customizeLabelPosition;
+@property (nonatomic, strong)  NSMutableArray *leftLabels;
+@property (nonatomic, strong)  NSMutableArray *rightLabels;
+
 /// @}
 
 /// @name Slice Style

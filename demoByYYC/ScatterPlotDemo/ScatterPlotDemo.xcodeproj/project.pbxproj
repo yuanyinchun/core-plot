@@ -1,0 +1,553 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6F21A27E19CF04DB0009BD8E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F21A27D19CF04DB0009BD8E /* Foundation.framework */; };
+		6F21A28019CF04DB0009BD8E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F21A27F19CF04DB0009BD8E /* CoreGraphics.framework */; };
+		6F21A28219CF04DB0009BD8E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F21A28119CF04DB0009BD8E /* UIKit.framework */; };
+		6F21A28819CF04DB0009BD8E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6F21A28619CF04DB0009BD8E /* InfoPlist.strings */; };
+		6F21A28A19CF04DB0009BD8E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F21A28919CF04DB0009BD8E /* main.m */; };
+		6F21A28E19CF04DB0009BD8E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F21A28D19CF04DB0009BD8E /* AppDelegate.m */; };
+		6F21A29019CF04DB0009BD8E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F21A28F19CF04DB0009BD8E /* Images.xcassets */; };
+		6F21A29719CF04DB0009BD8E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F21A29619CF04DB0009BD8E /* XCTest.framework */; };
+		6F21A29819CF04DB0009BD8E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F21A27D19CF04DB0009BD8E /* Foundation.framework */; };
+		6F21A29919CF04DB0009BD8E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F21A28119CF04DB0009BD8E /* UIKit.framework */; };
+		6F21A2A119CF04DB0009BD8E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6F21A29F19CF04DB0009BD8E /* InfoPlist.strings */; };
+		6F21A2A319CF04DB0009BD8E /* ScatterPlotDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F21A2A219CF04DB0009BD8E /* ScatterPlotDemoTests.m */; };
+		6FAE9EC519EF8622007ABF17 /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FAE9EC419EF8561007ABF17 /* libCorePlot-CocoaTouch.a */; };
+		6FEB6F1619CF06E0005428B1 /* CPDConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FEB6F1319CF06E0005428B1 /* CPDConstants.m */; };
+		6FEB6F1719CF06E0005428B1 /* CPDStockPriceStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FEB6F1519CF06E0005428B1 /* CPDStockPriceStore.m */; };
+		6FEB6F1A19CF0701005428B1 /* CPDScatterPlotViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FEB6F1919CF0701005428B1 /* CPDScatterPlotViewController.m */; };
+		6FEB6F1D19CF0BA9005428B1 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FEB6F1C19CF0BA9005428B1 /* Accelerate.framework */; };
+		6FEDD8FD19ED2F410029AF2E /* PieChartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FEDD8FC19ED2F410029AF2E /* PieChartViewController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6F21A29A19CF04DB0009BD8E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6F21A27219CF04DA0009BD8E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6F21A27919CF04DB0009BD8E;
+			remoteInfo = ScatterPlotDemo;
+		};
+		6FAE9EC319EF8561007ABF17 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6FAE9EBD19EF8561007ABF17 /* CorePlot-CocoaTouch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BC9B83470FB8A0A40035D8DA;
+			remoteInfo = "CorePlot-CocoaTouch";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6F21A27A19CF04DB0009BD8E /* ScatterPlotDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScatterPlotDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F21A27D19CF04DB0009BD8E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		6F21A27F19CF04DB0009BD8E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		6F21A28119CF04DB0009BD8E /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		6F21A28519CF04DB0009BD8E /* ScatterPlotDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ScatterPlotDemo-Info.plist"; sourceTree = "<group>"; };
+		6F21A28719CF04DB0009BD8E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6F21A28919CF04DB0009BD8E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		6F21A28B19CF04DB0009BD8E /* ScatterPlotDemo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ScatterPlotDemo-Prefix.pch"; sourceTree = "<group>"; };
+		6F21A28C19CF04DB0009BD8E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		6F21A28D19CF04DB0009BD8E /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		6F21A28F19CF04DB0009BD8E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		6F21A29519CF04DB0009BD8E /* ScatterPlotDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScatterPlotDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F21A29619CF04DB0009BD8E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		6F21A29E19CF04DB0009BD8E /* ScatterPlotDemoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ScatterPlotDemoTests-Info.plist"; sourceTree = "<group>"; };
+		6F21A2A019CF04DB0009BD8E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6F21A2A219CF04DB0009BD8E /* ScatterPlotDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScatterPlotDemoTests.m; sourceTree = "<group>"; };
+		6FAE9EBD19EF8561007ABF17 /* CorePlot-CocoaTouch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "CorePlot-CocoaTouch.xcodeproj"; path = "../../framework/CorePlot-CocoaTouch.xcodeproj"; sourceTree = "<group>"; };
+		6FEB6F1219CF06E0005428B1 /* CPDConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPDConstants.h; sourceTree = "<group>"; };
+		6FEB6F1319CF06E0005428B1 /* CPDConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CPDConstants.m; sourceTree = "<group>"; };
+		6FEB6F1419CF06E0005428B1 /* CPDStockPriceStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPDStockPriceStore.h; sourceTree = "<group>"; };
+		6FEB6F1519CF06E0005428B1 /* CPDStockPriceStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CPDStockPriceStore.m; sourceTree = "<group>"; };
+		6FEB6F1819CF06F5005428B1 /* CPDScatterPlotViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPDScatterPlotViewController.h; sourceTree = "<group>"; };
+		6FEB6F1919CF0701005428B1 /* CPDScatterPlotViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CPDScatterPlotViewController.m; sourceTree = "<group>"; };
+		6FEB6F1C19CF0BA9005428B1 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		6FEDD8FB19ED2F410029AF2E /* PieChartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PieChartViewController.h; sourceTree = "<group>"; };
+		6FEDD8FC19ED2F410029AF2E /* PieChartViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieChartViewController.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6F21A27719CF04DB0009BD8E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6FAE9EC519EF8622007ABF17 /* libCorePlot-CocoaTouch.a in Frameworks */,
+				6FEB6F1D19CF0BA9005428B1 /* Accelerate.framework in Frameworks */,
+				6F21A28019CF04DB0009BD8E /* CoreGraphics.framework in Frameworks */,
+				6F21A28219CF04DB0009BD8E /* UIKit.framework in Frameworks */,
+				6F21A27E19CF04DB0009BD8E /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F21A29219CF04DB0009BD8E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F21A29719CF04DB0009BD8E /* XCTest.framework in Frameworks */,
+				6F21A29919CF04DB0009BD8E /* UIKit.framework in Frameworks */,
+				6F21A29819CF04DB0009BD8E /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6F053D5619ED2E93009F2948 /* pieChartViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6FEDD8FB19ED2F410029AF2E /* PieChartViewController.h */,
+				6FEDD8FC19ED2F410029AF2E /* PieChartViewController.m */,
+			);
+			name = pieChartViewController;
+			sourceTree = "<group>";
+		};
+		6F053D5719ED2EAF009F2948 /* ScatterPlotDemo */ = {
+			isa = PBXGroup;
+			children = (
+				6FEB6F1919CF0701005428B1 /* CPDScatterPlotViewController.m */,
+				6FEB6F1819CF06F5005428B1 /* CPDScatterPlotViewController.h */,
+			);
+			name = ScatterPlotDemo;
+			sourceTree = "<group>";
+		};
+		6F21A27119CF04DA0009BD8E = {
+			isa = PBXGroup;
+			children = (
+				6FAE9EBD19EF8561007ABF17 /* CorePlot-CocoaTouch.xcodeproj */,
+				6F21A28319CF04DB0009BD8E /* ScatterPlotDemo */,
+				6F21A29C19CF04DB0009BD8E /* ScatterPlotDemoTests */,
+				6F21A27C19CF04DB0009BD8E /* Frameworks */,
+				6F21A27B19CF04DB0009BD8E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6F21A27B19CF04DB0009BD8E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6F21A27A19CF04DB0009BD8E /* ScatterPlotDemo.app */,
+				6F21A29519CF04DB0009BD8E /* ScatterPlotDemoTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6F21A27C19CF04DB0009BD8E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6FEB6F1C19CF0BA9005428B1 /* Accelerate.framework */,
+				6F21A27D19CF04DB0009BD8E /* Foundation.framework */,
+				6F21A27F19CF04DB0009BD8E /* CoreGraphics.framework */,
+				6F21A28119CF04DB0009BD8E /* UIKit.framework */,
+				6F21A29619CF04DB0009BD8E /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6F21A28319CF04DB0009BD8E /* ScatterPlotDemo */ = {
+			isa = PBXGroup;
+			children = (
+				6F053D5719ED2EAF009F2948 /* ScatterPlotDemo */,
+				6F053D5619ED2E93009F2948 /* pieChartViewController */,
+				6FEB6F1119CF06E0005428B1 /* Starter Files */,
+				6F21A28C19CF04DB0009BD8E /* AppDelegate.h */,
+				6F21A28D19CF04DB0009BD8E /* AppDelegate.m */,
+				6F21A28F19CF04DB0009BD8E /* Images.xcassets */,
+				6F21A28419CF04DB0009BD8E /* Supporting Files */,
+			);
+			path = ScatterPlotDemo;
+			sourceTree = "<group>";
+		};
+		6F21A28419CF04DB0009BD8E /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6F21A28519CF04DB0009BD8E /* ScatterPlotDemo-Info.plist */,
+				6F21A28619CF04DB0009BD8E /* InfoPlist.strings */,
+				6F21A28919CF04DB0009BD8E /* main.m */,
+				6F21A28B19CF04DB0009BD8E /* ScatterPlotDemo-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6F21A29C19CF04DB0009BD8E /* ScatterPlotDemoTests */ = {
+			isa = PBXGroup;
+			children = (
+				6F21A2A219CF04DB0009BD8E /* ScatterPlotDemoTests.m */,
+				6F21A29D19CF04DB0009BD8E /* Supporting Files */,
+			);
+			path = ScatterPlotDemoTests;
+			sourceTree = "<group>";
+		};
+		6F21A29D19CF04DB0009BD8E /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6F21A29E19CF04DB0009BD8E /* ScatterPlotDemoTests-Info.plist */,
+				6F21A29F19CF04DB0009BD8E /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6FAE9EBE19EF8561007ABF17 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6FAE9EC419EF8561007ABF17 /* libCorePlot-CocoaTouch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6FEB6F1119CF06E0005428B1 /* Starter Files */ = {
+			isa = PBXGroup;
+			children = (
+				6FEB6F1219CF06E0005428B1 /* CPDConstants.h */,
+				6FEB6F1319CF06E0005428B1 /* CPDConstants.m */,
+				6FEB6F1419CF06E0005428B1 /* CPDStockPriceStore.h */,
+				6FEB6F1519CF06E0005428B1 /* CPDStockPriceStore.m */,
+			);
+			path = "Starter Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6F21A27919CF04DB0009BD8E /* ScatterPlotDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6F21A2A619CF04DB0009BD8E /* Build configuration list for PBXNativeTarget "ScatterPlotDemo" */;
+			buildPhases = (
+				6F21A27619CF04DB0009BD8E /* Sources */,
+				6F21A27719CF04DB0009BD8E /* Frameworks */,
+				6F21A27819CF04DB0009BD8E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ScatterPlotDemo;
+			productName = ScatterPlotDemo;
+			productReference = 6F21A27A19CF04DB0009BD8E /* ScatterPlotDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6F21A29419CF04DB0009BD8E /* ScatterPlotDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6F21A2A919CF04DB0009BD8E /* Build configuration list for PBXNativeTarget "ScatterPlotDemoTests" */;
+			buildPhases = (
+				6F21A29119CF04DB0009BD8E /* Sources */,
+				6F21A29219CF04DB0009BD8E /* Frameworks */,
+				6F21A29319CF04DB0009BD8E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6F21A29B19CF04DB0009BD8E /* PBXTargetDependency */,
+			);
+			name = ScatterPlotDemoTests;
+			productName = ScatterPlotDemoTests;
+			productReference = 6F21A29519CF04DB0009BD8E /* ScatterPlotDemoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6F21A27219CF04DA0009BD8E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = yyc;
+				TargetAttributes = {
+					6F21A29419CF04DB0009BD8E = {
+						TestTargetID = 6F21A27919CF04DB0009BD8E;
+					};
+				};
+			};
+			buildConfigurationList = 6F21A27519CF04DA0009BD8E /* Build configuration list for PBXProject "ScatterPlotDemo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 6F21A27119CF04DA0009BD8E;
+			productRefGroup = 6F21A27B19CF04DB0009BD8E /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 6FAE9EBE19EF8561007ABF17 /* Products */;
+					ProjectRef = 6FAE9EBD19EF8561007ABF17 /* CorePlot-CocoaTouch.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				6F21A27919CF04DB0009BD8E /* ScatterPlotDemo */,
+				6F21A29419CF04DB0009BD8E /* ScatterPlotDemoTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		6FAE9EC419EF8561007ABF17 /* libCorePlot-CocoaTouch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libCorePlot-CocoaTouch.a";
+			remoteRef = 6FAE9EC319EF8561007ABF17 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6F21A27819CF04DB0009BD8E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F21A28819CF04DB0009BD8E /* InfoPlist.strings in Resources */,
+				6F21A29019CF04DB0009BD8E /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F21A29319CF04DB0009BD8E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F21A2A119CF04DB0009BD8E /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6F21A27619CF04DB0009BD8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F21A28E19CF04DB0009BD8E /* AppDelegate.m in Sources */,
+				6F21A28A19CF04DB0009BD8E /* main.m in Sources */,
+				6FEB6F1719CF06E0005428B1 /* CPDStockPriceStore.m in Sources */,
+				6FEB6F1619CF06E0005428B1 /* CPDConstants.m in Sources */,
+				6FEDD8FD19ED2F410029AF2E /* PieChartViewController.m in Sources */,
+				6FEB6F1A19CF0701005428B1 /* CPDScatterPlotViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F21A29119CF04DB0009BD8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F21A2A319CF04DB0009BD8E /* ScatterPlotDemoTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6F21A29B19CF04DB0009BD8E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6F21A27919CF04DB0009BD8E /* ScatterPlotDemo */;
+			targetProxy = 6F21A29A19CF04DB0009BD8E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		6F21A28619CF04DB0009BD8E /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6F21A28719CF04DB0009BD8E /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		6F21A29F19CF04DB0009BD8E /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6F21A2A019CF04DB0009BD8E /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		6F21A2A419CF04DB0009BD8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		6F21A2A519CF04DB0009BD8E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6F21A2A719CF04DB0009BD8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ScatterPlotDemo/ScatterPlotDemo-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"/Users/yuanyinchun/projects/core-plot/framework/**",
+				);
+				INFOPLIST_FILE = "ScatterPlotDemo/ScatterPlotDemo-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		6F21A2A819CF04DB0009BD8E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ScatterPlotDemo/ScatterPlotDemo-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"/Users/yuanyinchun/projects/core-plot/framework/**",
+				);
+				INFOPLIST_FILE = "ScatterPlotDemo/ScatterPlotDemo-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		6F21A2AA19CF04DB0009BD8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ScatterPlotDemo.app/ScatterPlotDemo";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ScatterPlotDemo/ScatterPlotDemo-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "ScatterPlotDemoTests/ScatterPlotDemoTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		6F21A2AB19CF04DB0009BD8E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ScatterPlotDemo.app/ScatterPlotDemo";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ScatterPlotDemo/ScatterPlotDemo-Prefix.pch";
+				INFOPLIST_FILE = "ScatterPlotDemoTests/ScatterPlotDemoTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6F21A27519CF04DA0009BD8E /* Build configuration list for PBXProject "ScatterPlotDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F21A2A419CF04DB0009BD8E /* Debug */,
+				6F21A2A519CF04DB0009BD8E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6F21A2A619CF04DB0009BD8E /* Build configuration list for PBXNativeTarget "ScatterPlotDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F21A2A719CF04DB0009BD8E /* Debug */,
+				6F21A2A819CF04DB0009BD8E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6F21A2A919CF04DB0009BD8E /* Build configuration list for PBXNativeTarget "ScatterPlotDemoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F21A2AA19CF04DB0009BD8E /* Debug */,
+				6F21A2AB19CF04DB0009BD8E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6F21A27219CF04DA0009BD8E /* Project object */;
+}

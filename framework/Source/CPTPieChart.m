@@ -4,6 +4,8 @@
 #import "CPTFill.h"
 #import "CPTLegend.h"
 #import "CPTLineStyle.h"
+#import "CPTTextStyle.h"
+#import "CPTMutableTextStyle.h"
 #import "CPTMutableNumericData.h"
 #import "CPTPathExtensions.h"
 #import "CPTPlotArea.h"
@@ -108,6 +110,19 @@ NSString *const CPTPieChartBindingPieSliceRadialOffsets = @"sliceRadialOffsets";
  **/
 @synthesize borderLineStyle;
 
+@synthesize dataLabelLineStyle;
+
+@synthesize totalTextStyle;
+
+@synthesize shadowFill;
+
+@synthesize leftLabels;
+
+@synthesize rightLabels;
+
+
+//@synthesize annotationsFrame;
+
 /** @property CPTFill *overlayFill
  *  @brief A fill drawn on top of the pie chart.
  *  Can be used to add shading and/or gloss effects. Defaults to @nil.
@@ -119,6 +134,8 @@ NSString *const CPTPieChartBindingPieSliceRadialOffsets = @"sliceRadialOffsets";
  *  If @YES, the labels are rotated relative to the radius of the pie chart (zero rotation is parallel to the radius).
  **/
 @synthesize labelRotationRelativeToRadius;
+
+@synthesize customizeLabelPosition;
 
 /** @internal
  *  @property NSUInteger pointingDeviceDownIndex
@@ -219,6 +236,12 @@ static const CGFloat colorLookupTable[10][3] =
         borderLineStyle               = nil;
         overlayFill                   = nil;
         labelRotationRelativeToRadius = NO;
+        customizeLabelPosition=NO;
+        //annotationsFrame=[[NSMutableArray alloc]init];
+        shadowFill=nil;
+        totalTextStyle=nil;
+        leftLabels=[[NSMutableArray alloc] init];
+        rightLabels=[[NSMutableArray alloc] init];
         pointingDeviceDownIndex       = NSNotFound;
 
         self.labelOffset = CPTFloat(10.0);
@@ -562,7 +585,7 @@ static const CGFloat colorLookupTable[10][3] =
     }
 
     [super renderAsVectorInContext:context];
-
+    
     CGContextBeginTransparencyLayer(context, NULL);
 
     CGRect plotAreaBounds = thePlotArea.bounds;
@@ -598,7 +621,46 @@ static const CGFloat colorLookupTable[10][3] =
 
     [borderStyle setLineStyleInContext:context];
     Class fillClass = [CPTFill class];
+    
+    
+    //draw underline for each data label
+    NSUInteger idx=0;
+    for (CPTPlotSpaceAnnotation *anno in self.annotations) {
+        
+        //NSLog(@"%@",NSStringFromCGRect(anno.contentLayer.frame) );
+        
+        CGRect frame=[self convertRect:anno.contentLayer.frame toLayer:thePlotArea];
+        // NSLog(@"%@",NSStringFromCGRect(frame) );
+        // NSLog(@"--------------");
+        
+        
+        CGMutablePathRef mypath=CGPathCreateMutable();
+        CGPoint originPoint=frame.origin;
+        CGPoint tailPoint=CGPointMake(frame.origin.x+frame.size.width, frame.origin.y);
+        
+        CGFloat medianAngle=[self medianAngleForPieSliceIndex:idx];
+        CGPoint medianPoint=CGPointMake(centerPoint.x+self.pieRadius*cos(medianAngle), centerPoint.y+self.pieRadius*sin(medianAngle));
+        
+        if ([self.leftLabels containsObject:[NSNumber numberWithUnsignedInteger:idx]]) {
+            CGPathMoveToPoint(mypath, NULL, medianPoint.x, medianPoint.y);
+            CGPathAddLineToPoint(mypath, NULL, tailPoint.x,tailPoint.y);
+            CGPathAddLineToPoint(mypath, NULL, originPoint.x,originPoint.y);
+        }
+        if ([self.rightLabels containsObject:[NSNumber numberWithUnsignedInteger:idx]]) {
+            CGPathMoveToPoint(mypath, NULL, medianPoint.x, medianPoint.y);
+            CGPathAddLineToPoint(mypath, NULL, originPoint.x,originPoint.y);
+            CGPathAddLineToPoint(mypath, NULL, tailPoint.x,tailPoint.y);
+        }
+        
+        
+        CGContextBeginPath(context);
+        CGContextAddPath(context, mypath);
+        [self.dataLabelLineStyle strokePathInContext:context];
+        CGPathRelease(mypath);
+        idx++;
+    }
 
+    
     while ( currentIndex < sampleCount ) {
         CGFloat currentWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthNormalized recordIndex : currentIndex];
 
@@ -659,12 +721,16 @@ static const CGFloat colorLookupTable[10][3] =
             CGContextRestoreGState(context);
 
             startingWidth += currentWidth;
+            
+            
         }
         currentIndex++;
     }
-
+    
+    
     CGContextEndTransparencyLayer(context);
 
+    
     // draw overlay all at once if not exploded
     if ( overlay && !hasNonZeroOffsets ) {
         // no shadow for the overlay
@@ -689,6 +755,50 @@ static const CGFloat colorLookupTable[10][3] =
 
         CGPathRelease(fillPath);
     }
+    
+    //draw shadow
+    CGMutablePathRef shadowPath=CGPathCreateMutable();
+    //CGPathMoveToPoint(shadowPath, NULL, centerPoint.x, centerPoint.y);
+    CGPathAddArc(shadowPath, NULL, centerPoint.x, centerPoint.y, (self.pieRadius+self.pieInnerRadius)/2.0f, 0, 2*(CGFloat)M_PI, YES);
+    CGContextBeginPath(context);
+    CGContextAddPath(context, shadowPath);
+    [self.shadowFill fillPathInContext:context];
+    
+    //draw total number;
+    CGFloat total=0;
+    for(NSUInteger i=0;i<self.cachedDataCount;i++){
+        CGFloat currentWidth = CPTFloat([self cachedDoubleForField:CPTPieChartFieldSliceWidth recordIndex:i]);
+        total+=currentWidth;
+   }
+    float tmp=sqrtf(2)*self.pieInnerRadius/2;
+    CGRect totalRect=CGRectMake(centerPoint.x-tmp, centerPoint.y-tmp, tmp*2, tmp*2);
+    NSString *totalStr=[NSString stringWithFormat:@"%d",(int)total];
+   
+    CGContextSaveGState(context);
+    CGContextTranslateCTM(context, 0.0,self.bounds.size.height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+   
+    UIFont* font = [self getFontForString:totalStr toFitInRect:totalRect seedFont:[UIFont fontWithName:self.totalTextStyle.fontName size:100]];
+    self.totalTextStyle.fontSize=font.pointSize;
+    
+    [totalStr drawInRect:totalRect withTextStyle:self.totalTextStyle inContext:context];
+    
+    CGContextRestoreGState(context);
+    
+}
+
+-(UIFont*)getFontForString:(NSString*)string
+               toFitInRect:(CGRect)rect
+                  seedFont:(UIFont*)seedFont{
+    UIFont* returnFont = seedFont;
+    CGSize stringSize = [string sizeWithFont:returnFont];
+    
+    while(stringSize.width > rect.size.width){
+        returnFont = [UIFont systemFontOfSize:returnFont.pointSize -1];
+        stringSize = [string sizeWithFont:returnFont];
+    }
+    
+    return returnFont;
 }
 
 -(CGFloat)radiansForPieSliceValue:(CGFloat)pieSliceValue
@@ -891,25 +1001,27 @@ static const CGFloat colorLookupTable[10][3] =
 #pragma mark -
 #pragma mark Data Labels
 
-/// @cond
-
--(void)positionLabelAnnotation:(CPTPlotSpaceAnnotation *)label forIndex:(NSUInteger)idx
+-(void)customizePositionLabelAnnotation:(CPTPlotSpaceAnnotation *)label
+    forIndex:(NSUInteger)idx
+    left: (BOOL)left
+    pos:(NSUInteger)pos
+    total: (NSUInteger)total
 {
     CPTLayer *contentLayer   = label.contentLayer;
     CPTPlotArea *thePlotArea = self.plotArea;
-
+    
     if ( contentLayer && thePlotArea ) {
         CGRect plotAreaBounds = thePlotArea.bounds;
         CGPoint anchor        = self.centerAnchor;
         CGPoint centerPoint   = CPTPointMake(plotAreaBounds.origin.x + plotAreaBounds.size.width * anchor.x,
                                              plotAreaBounds.origin.y + plotAreaBounds.size.height * anchor.y);
-
+        
         NSDecimal plotPoint[2];
         [self.plotSpace plotPoint:plotPoint numberOfCoordinates:2 forPlotAreaViewPoint:centerPoint];
         NSDecimalNumber *xValue = [[NSDecimalNumber alloc] initWithDecimal:plotPoint[CPTCoordinateX]];
         NSDecimalNumber *yValue = [[NSDecimalNumber alloc] initWithDecimal:plotPoint[CPTCoordinateY]];
         label.anchorPlotPoint = @[xValue, yValue];
-
+        
         CGFloat currentWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthNormalized recordIndex : idx];
         if ( self.hidden || isnan(currentWidth) ) {
             contentLayer.hidden = YES;
@@ -917,30 +1029,172 @@ static const CGFloat colorLookupTable[10][3] =
         else {
             CGFloat radialOffset = [(NSNumber *)[self cachedValueForKey:CPTPieChartBindingPieSliceRadialOffsets recordIndex:idx] cgFloatValue];
             CGFloat labelRadius  = self.pieRadius + self.labelOffset + radialOffset;
-
+            
             CGFloat startingWidth = CPTFloat(0.0);
             if ( idx > 0 ) {
                 startingWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthSum recordIndex : idx - 1];
             }
+
+            
             CGFloat labelAngle = [self radiansForPieSliceValue:startingWidth + currentWidth / CPTFloat(2.0)];
-
-            label.displacement = CPTPointMake( labelRadius * cos(labelAngle), labelRadius * sin(labelAngle) );
-
+            
+            CGFloat verticalLength=self.pieRadius+self.pieInnerRadius;
+            CGFloat xAxisDisplacement=left ? -labelRadius:labelRadius;
+            CGFloat yAxisDisplacement=0.0;
+            if(total%2){//odd
+                yAxisDisplacement=verticalLength/total*(total/2-pos);
+            }else{//even
+                if(pos<total/2)
+                    yAxisDisplacement=verticalLength/total*(total/2-pos);
+                else{
+                    yAxisDisplacement=verticalLength/total*(total/2-pos-1.0f);
+                }
+            }
+            
+            label.displacement = CPTPointMake(xAxisDisplacement ,  yAxisDisplacement);
+            /*
+            NSLog(@"index:%d,anchorPoint:%@,xDisplacement:%f,yDisplacement:%f",idx,label.anchorPlotPoint,label.displacement.x,label.displacement.y);
+            NSLog(@"%f,%f",centerPoint.x,centerPoint.y);
+             */
+            //label.displacement = CPTPointMake(xAxisDisplacement-xAxisDisplacement, yAxisDisplacement-yAxisDisplacement);
+            
             if ( self.labelRotationRelativeToRadius ) {
                 CGFloat rotation = [self normalizedPosition:self.labelRotation + labelAngle];
                 if ( ( rotation > CPTFloat(0.25) ) && ( rotation < CPTFloat(0.75) ) ) {
                     rotation -= CPTFloat(0.5);
                 }
-
+                
                 label.rotation = rotation * CPTFloat(2.0 * M_PI);
             }
-
+            
             contentLayer.hidden = NO;
         }
     }
     else {
         label.anchorPlotPoint = nil;
         label.displacement    = CGPointZero;
+    }
+
+    
+    
+}
+
+
+-(void) defaultPositionLabelAnnotation:(CPTPlotSpaceAnnotation *)label forIndex:(NSUInteger)idx
+{
+    CPTLayer *contentLayer   = label.contentLayer;
+    CPTPlotArea *thePlotArea = self.plotArea;
+    
+    if ( contentLayer && thePlotArea ) {
+        CGRect plotAreaBounds = thePlotArea.bounds;
+        CGPoint anchor        = self.centerAnchor;
+        CGPoint centerPoint   = CPTPointMake(plotAreaBounds.origin.x + plotAreaBounds.size.width * anchor.x,
+                                             plotAreaBounds.origin.y + plotAreaBounds.size.height * anchor.y);
+        
+        NSDecimal plotPoint[2];
+        [self.plotSpace plotPoint:plotPoint numberOfCoordinates:2 forPlotAreaViewPoint:centerPoint];
+        NSDecimalNumber *xValue = [[NSDecimalNumber alloc] initWithDecimal:plotPoint[CPTCoordinateX]];
+        NSDecimalNumber *yValue = [[NSDecimalNumber alloc] initWithDecimal:plotPoint[CPTCoordinateY]];
+        label.anchorPlotPoint = @[xValue, yValue];
+        
+        CGFloat currentWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthNormalized recordIndex : idx];
+        if ( self.hidden || isnan(currentWidth) ) {
+            contentLayer.hidden = YES;
+        }
+        else {
+            CGFloat radialOffset = [(NSNumber *)[self cachedValueForKey:CPTPieChartBindingPieSliceRadialOffsets recordIndex:idx] cgFloatValue];
+            CGFloat labelRadius  = self.pieRadius + self.labelOffset + radialOffset;
+            
+            CGFloat startingWidth = CPTFloat(0.0);
+            if ( idx > 0 ) {
+                startingWidth = (CGFloat)[self cachedDoubleForField : CPTPieChartFieldSliceWidthSum recordIndex : idx - 1];
+            }
+            CGFloat labelAngle = [self radiansForPieSliceValue:startingWidth + currentWidth / CPTFloat(2.0)];
+            
+            
+            label.displacement = CPTPointMake( labelRadius * cos(labelAngle), labelRadius * sin(labelAngle) );
+            
+            /*
+            label.displacement=CPTPointMake(cos(labelAngle)<0 ? -2*labelRadius:labelRadius, labelRadius * sin(labelAngle));
+            
+            NSLog(@"\n\n\nlabelAngle:%f",labelAngle);
+            
+            NSLog(@"lableDisplacement:(%f,%f)\n\n\n",label.displacement.x,label.displacement.y);
+            */
+            if ( self.labelRotationRelativeToRadius ) {
+                CGFloat rotation = [self normalizedPosition:self.labelRotation + labelAngle];
+                if ( ( rotation > CPTFloat(0.25) ) && ( rotation < CPTFloat(0.75) ) ) {
+                    rotation -= CPTFloat(0.5);
+                }
+                
+                label.rotation = rotation * CPTFloat(2.0 * M_PI);
+            }
+            
+            contentLayer.hidden = NO;
+        }
+    }
+    else {
+        label.anchorPlotPoint = nil;
+        label.displacement    = CGPointZero;
+    }
+
+}
+
+/// @cond
+-(void)positionLabelAnnotation:(CPTPlotSpaceAnnotation *)label forIndex:(NSUInteger)idx
+{
+    if (self.customizeLabelPosition==NO) {
+        [self defaultPositionLabelAnnotation:label forIndex:idx];
+    }
+    else{
+        if(idx < self.cachedDataCount-1){
+            return;
+        }
+        if (idx == self.cachedDataCount-1) {//all annotations are added by now.
+            [self.leftLabels removeAllObjects];
+            [self.rightLabels removeAllObjects];
+            for (NSUInteger i=0; i<=idx; i++) {
+                CGFloat medianAngle=[self medianAngleForPieSliceIndex:i];
+                if (medianAngle>=-M_PI_2 && medianAngle<=M_PI_2) {
+                    [self.rightLabels addObject:[NSNumber numberWithUnsignedInteger:i]];
+                }
+                else{
+                    [self.leftLabels addObject:[NSNumber numberWithUnsignedInteger:i]];
+                }
+            }
+            
+            NSUInteger leftCount=[self.leftLabels count];
+            NSUInteger rightCount=[self.rightLabels count];
+            for (NSUInteger i=0; i<self.cachedDataCount; i++){
+                NSUInteger pos;
+                if ((pos=[self.leftLabels indexOfObject:[NSNumber numberWithUnsignedInteger:i]])
+                    !=NSNotFound
+                    ) {
+                    [self customizePositionLabelAnnotation:self.annotations[i]
+                                                  forIndex:i
+                                                      left:YES
+                                                       pos: pos                  total:leftCount
+                                                  ];
+                }
+                else if ((pos=[self.rightLabels indexOfObject:[NSNumber numberWithUnsignedInteger:i]])!=NSNotFound) {
+                    [self customizePositionLabelAnnotation:self.annotations[i]
+                                                  forIndex:i
+                                                      left:NO
+                                                       pos: pos                  total:rightCount
+                     ];
+                }
+
+            }
+            [self setNeedsDisplay];
+            
+            }
+        
+        else
+            return;
+    /*
+    NSLog(@"%@",self.annotations);
+    NSLog(@"%d",self.cachedDataCount);
+     */
     }
 }
 
