@@ -781,34 +781,44 @@ static const CGFloat colorLookupTable[10][3] =
         CGPathRelease(fillPath);
     }
     
-    /*
-    //draw shadow
-    CGMutablePathRef shadowPath=CGPathCreateMutable();
-    //CGPathMoveToPoint(shadowPath, NULL, centerPoint.x, centerPoint.y);
-    CGPathAddArc(shadowPath, NULL, centerPoint.x, centerPoint.y, (self.pieRadius+self.pieInnerRadius)/2.0f, 0, 2*(CGFloat)M_PI, YES);
-    CGContextBeginPath(context);
-    CGContextAddPath(context, shadowPath);
-    [self.shadowFill fillPathInContext:context];
-    */
     
     //draw total number;
     CGFloat total=0;
-    for(NSUInteger i=0;i<self.cachedDataCount;i++){
+    NSUInteger tail=self.enableSeperator?2:1;
+    for(NSUInteger i=0;i<self.cachedDataCount;i+=tail){
         CGFloat currentWidth = CPTFloat([self cachedDoubleForField:CPTPieChartFieldSliceWidth recordIndex:i]);
         total+=currentWidth;
    }
     float tmp=sqrtf(2)*self.pieInnerRadius/2;
     CGRect totalRect=CGRectMake(centerPoint.x-tmp, centerPoint.y-tmp, tmp*2, tmp*2);
     NSString *totalStr=[NSString stringWithFormat:@"%d",(int)total];
-   
+    
     CGContextSaveGState(context);
     CGContextTranslateCTM(context, 0.0,self.bounds.size.height);
     CGContextScaleCTM(context, 1.0, -1.0);
    
     UIFont* font = [self getFontForString:totalStr toFitInRect:totalRect seedFont:[UIFont fontWithName:self.totalTextStyle.fontName size:100]];
+    CGSize strSize=[totalStr sizeWithFont:font];
     self.totalTextStyle.fontSize=font.pointSize;
     
+    totalRect=CGRectMake(totalRect.origin.x, totalRect.origin.y+(totalRect.size.height-strSize.height)/2, totalRect
+                         .size.width, strSize.height);
+    
     [totalStr drawInRect:totalRect withTextStyle:self.totalTextStyle inContext:context];
+    
+    /*
+     //test usage: stroke totalRect
+    CGContextSaveGState(context);
+    CGMutablePathRef rectPath=CGPathCreateMutable();
+    CGPathAddRect(rectPath, nil, totalRect);
+    
+    CGContextAddPath(context, rectPath);
+    CGContextSetRGBStrokeColor(context, 0.0,0.0,1.0,1.0);
+    CGContextStrokePath(context);
+    
+    CGPathRelease(rectPath);
+    CGContextRestoreGState(context);
+    */
     
     CGContextRestoreGState(context);
     
