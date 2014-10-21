@@ -704,7 +704,6 @@ static const CGFloat colorLookupTable[10][3] =
                 [currentFill fillPathInContext:context];
             }
             
-            
             //draw shadow
             if (!self.enableSeperator ||
                 (self.enableSeperator && currentIndex%2==0 )) {

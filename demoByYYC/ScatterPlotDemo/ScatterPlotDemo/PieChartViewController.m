@@ -55,37 +55,40 @@
 }
 
 
--(int)getSeperatorData
+-(double)getSeperatorData
 {
     int totalNumber=0;
     double seperatorData=0.0;
-    int factor=64;
+    int factor=128;
+    int currentCount=[self.myPlotData count];
+    
     if (self.beforeInsertSeperator==NO){
         for (int i=0;i<[ self.myPlotData count];i+=2) {
         totalNumber+=[self.myPlotData[i][2] intValue];
         }
-        
-        seperatorData= M_PI*totalNumber/[self.myPlotData count]/2/(factor-M_PI);
+        currentCount/=2;
+        seperatorData= M_PI*totalNumber/currentCount/(factor-M_PI);
     }
     else{
         for (NSArray *array in self.myPlotData) {
             totalNumber+=[array[2] intValue];
         }
         
-        seperatorData =M_PI*totalNumber/[self.myPlotData count]/(factor-M_PI);
+        seperatorData =M_PI*totalNumber/currentCount/(factor-M_PI);
     }
     
-    return (int)seperatorData;
+    
+    return seperatorData;
 }
 
 -(void)insertSeperatorData
 {
     
-    int seperatorData=[self getSeperatorData];
+    double seperatorData=[self getSeperatorData];
     NSMutableArray *newArray=[[NSMutableArray alloc]init];
     for (NSArray * array in self.myPlotData) {
         [newArray addObject:array];
-        [newArray addObject:[NSMutableArray arrayWithObjects:@"seperator",[NSNumber numberWithInt:seperatorData],[NSNumber numberWithInt:seperatorData], nil ]];
+        [newArray addObject:[NSMutableArray arrayWithObjects:@"seperator",[NSNumber numberWithDouble:seperatorData],[NSNumber numberWithDouble:seperatorData], nil ]];
     }
     self.myPlotData=newArray;
     self. beforeInsertSeperator=NO;
@@ -132,7 +135,7 @@
 }
 
 -(void)changePlotData{
-    static int times=1;
+    //static int times=1;
     
     NSUInteger count=[self.myPlotData count];
     for (int i=0; i<count; i+=2) {
@@ -140,25 +143,22 @@
         self.myPlotData[i][2]=num;
     }
     
+    double seperatorData=[self getSeperatorData];
     for (int i=1;i<count;i+=2){ //change seperator data
-        
+        NSNumber *tmp=[NSNumber numberWithDouble:seperatorData];
+        self.myPlotData[i][1]=tmp;
+        self.myPlotData[i][2]=tmp;
     }
+    
     
     CATransition *animation = [CATransition animation];
     animation.type = kCATransitionFade;
     animation.duration =1;
     [self.pieChart addAnimation:animation forKey:nil];
+     
     self.pieChart.hidden = YES;
-    
-    
-    
     [self.pieChart reloadPlotData];
-   
-    NSLog(@"%d ----------\n%@",times,self.myPlotData);
-    
-    [self takeScreenshot:[NSString stringWithFormat:@"%d.png",times]];
-    times++;
-    
+    //[self takeScreenshot:[NSString stringWithFormat:@"%d.png",times]];
     self.pieChart.hidden=NO;
 }
 
