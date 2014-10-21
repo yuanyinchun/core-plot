@@ -158,6 +158,8 @@
      
     self.pieChart.hidden = YES;
     [self.pieChart reloadPlotData];
+    [self.pieChart reloadDataLabels];
+    
     //[self takeScreenshot:[NSString stringWithFormat:@"%d.png",times]];
     self.pieChart.hidden=NO;
 }
@@ -269,12 +271,12 @@
             whiteText.color = [CPTColor whiteColor];
         });
         
-        NSMutableAttributedString *unRead=[[NSMutableAttributedString alloc]initWithString:[_myPlotData[index][1]  stringValue ] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor whiteColor]} ];
+        NSMutableAttributedString *unRead=[[NSMutableAttributedString alloc]initWithString:[_myPlotData[index][1]  stringValue ] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:20],NSForegroundColorAttributeName:[UIColor whiteColor]} ];
         
         NSMutableString *allStr=[[NSMutableString alloc]initWithString:@"/"];
         [allStr appendString:[_myPlotData[index][2]  stringValue ]];
         
-        NSMutableAttributedString *all=[[NSMutableAttributedString alloc]initWithString:allStr attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:20],NSForegroundColorAttributeName:[UIColor grayColor]} ];
+        NSMutableAttributedString *all=[[NSMutableAttributedString alloc]initWithString:allStr attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]} ];
         
         NSMutableString *levelStr=[[NSMutableString  alloc] initWithString:_myPlotData[index][0]];
         [levelStr appendString:@" "];
