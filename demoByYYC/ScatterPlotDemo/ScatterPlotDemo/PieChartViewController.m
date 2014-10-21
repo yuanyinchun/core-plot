@@ -11,6 +11,7 @@
 @interface PieChartViewController ()
 
 @property (nonatomic) BOOL beforeInsertSeperator;
+@property (nonatomic,readwrite) NSMutableArray *cumulateArray;
 
 @end
 
@@ -25,15 +26,225 @@
     return self;
 }
 
+-(BOOL)passTest:(NSMutableArray *)left :(NSMutableArray *)right
+{
+    
+    switch ([self.myPlotData count]/2) {
+        case 5:
+            if ([left count]==2 && [right count]==3)
+                return true;
+            else
+                return false;
+            break;
+        case 4:
+            if ([left count]==2 && [right count]==2)
+                return true;
+            else
+                return false;
+            break;
+        case 3:
+            if ([left count]==1 && [right count]==2)
+                return true;
+            else
+                return false;
+            break;
+        case 2:
+            if ([left count]==1 && [right count]==1)
+                return true;
+            else
+                return false;            break;
+        case 1:
+            if ([left count]==1 && [right count]==2)
+                return true;
+            else
+                return false;
+            break;
+        default:
+            return true;
+            break;
+    }
+}
+
+-(void)caculateLeft:(NSMutableArray *)left right:(NSMutableArray *)right
+{
+    double total=[[self.cumulateArray lastObject][2] doubleValue];
+    double center=0.0;
+                  
+    center=[self.cumulateArray[0][2] doubleValue]/2;
+    double radius=center/total*2*M_PI;
+    //if(radius >=M_PI_2 && radius <=3*M_PI_2)
+    if(radius >=0 && radius <=M_PI)
+    {
+        //[left addObject:@0];
+        [right addObject:@0];
+    }
+    else
+        //[right addObject:@0];
+        [left addObject:@0];
+                  
+    for (int i=2; i<[self.cumulateArray count]; i+=2) {
+        center=[self.cumulateArray[i-1][2] doubleValue]+[self.myPlotData[i][2] doubleValue]/2;
+        radius=center/total*2*M_PI;
+       // if(radius >=M_PI_2 && radius <=3*M_PI_2)
+        if(radius >=0 && radius <=M_PI)
+        {
+            //[left addObject:[NSNumber numberWithInt:i]];
+            [right addObject:[NSNumber numberWithInt:i]];
+        }
+        else
+            //[right addObject:[NSNumber numberWithInt:i]];
+            [left addObject:[NSNumber numberWithInt:i]];
+    }
+
+}
+
+-(void)getCumulateArray
+{
+    //true deep copy
+    self.cumulateArray=[NSKeyedUnarchiver unarchiveObjectWithData:[NSKeyedArchiver archivedDataWithRootObject:self.myPlotData]];
+    for (int i=1; i<[self.cumulateArray count]; i++) {
+        double current;
+        double previous;
+        current=[self.cumulateArray[i][2] doubleValue];
+        previous=[self.cumulateArray[i-1][2] doubleValue];
+        self.cumulateArray[i][2]=[NSNumber numberWithDouble:previous+current];
+    }
+
+}
+
+-(void)moveDataFrom:(NSMutableArray *)from to:(NSMutableArray *)to
+          direction:(BOOL)rightToLeft
+                num:(int)num
+{
+    
+    //sort array "from" in asceding order
+    for(int i=0;i<[from count];i++){
+        int smallest=INT_MAX;
+        int smallestIdx=-1;
+        for (int j=i; j<[from count]; j++) {
+            int current=[self.myPlotData[[from[j] intValue]][2] intValue];
+            if (current<smallest) {
+                smallest=current;
+                smallestIdx=j;
+            }
+        }
+        
+        [from exchangeObjectAtIndex:i withObjectAtIndex:smallestIdx];
+    }
+    
+   
+    //move 'num' smallest in 'from' to the end of self.myPlotData
+    NSMutableArray *tmpArray=[[NSMutableArray alloc]init];
+    NSMutableIndexSet *indexSet=[NSMutableIndexSet indexSet];
+    for (int i=0; i<num; i++) {
+        int idx=[from[i] intValue];
+        [indexSet addIndex:idx];
+        [indexSet addIndex:idx+1];
+        [tmpArray addObject: [self.myPlotData[idx] mutableCopy]];
+        [tmpArray addObject: [self.myPlotData[idx+1] mutableCopy]];
+    }
+    
+    
+
+    [self.myPlotData removeObjectsAtIndexes:indexSet];
+    
+    if (rightToLeft) {
+        [self.myPlotData addObjectsFromArray:tmpArray];
+    }else
+    {
+        for (int i=0;i<[tmpArray count];i+=2){
+            [self.myPlotData insertObject:tmpArray[i+1] atIndex:0];
+            [self.myPlotData insertObject:tmpArray[i] atIndex:0];
+        }
+        
+    }
+}
+
+-(void)shuffData:(NSMutableArray *)left right:(NSMutableArray *)right
+{
+    switch ([self.myPlotData count]/2) {
+        case 5:
+            switch ([left count]) {
+                case 1:  //1+4
+                    [self moveDataFrom:right to:left direction:YES num:1];
+                    break;
+                case 3: //3+2
+                    [self moveDataFrom:left to:right direction:NO num:3];
+                    break;
+                case 4: //4+1
+                    [self moveDataFrom:left to:right direction:NO num:2];
+                    break;
+            }
+            break;
+        case 4:
+            switch ([left count]) {
+                case 1: //1+3
+                    [self moveDataFrom:right to:left direction:YES num:1];
+                    break;
+                case 3: //3+1
+                    [self moveDataFrom:left to:right direction:NO num:1];
+                default:
+                    break;
+            }
+            break;
+        case 3:
+            switch ([left count]) {
+                case 2: //2+1
+                    [self moveDataFrom:left to:right direction:NO num:2];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 2:
+            
+            break;
+        case 1:
+            
+            break;
+        default:
+            break;
+    }
+}
+
+-(void)rearrangeData
+{
+    BOOL pass;
+    NSMutableArray *left=[[NSMutableArray alloc]init];
+    NSMutableArray *right=[[NSMutableArray alloc]init];
+    int count=0;
+    
+    do {
+        if (count==5) {
+            break;
+        }
+        
+        [left removeAllObjects];
+        [right removeAllObjects];
+        [self getCumulateArray];
+        [self caculateLeft:left right:right];
+        if ([left count]==3 && [right count]==2) {
+            NSLog(@"pause");
+        }
+        pass=[self passTest:left :right];
+        if(!pass){
+            [self shuffData:left right:right];
+            count++;
+        }
+    } while (!pass);
+   
+}
+
+
 -(void)generateData
 {
     
     self.myPlotData=[[NSMutableArray alloc]init];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"error",@12,@19, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"warning",@1,@5, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@37, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"info",@6,@41, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@82, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"error",@12,@45, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"warning",@1,@73, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@59, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"info",@6,@88, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@31, nil]];
     
     /*
     [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"error",@12,@25, nil]];
@@ -138,6 +349,12 @@
     //static int times=1;
     
     NSUInteger count=[self.myPlotData count];
+    
+    //int itemNum=1+arch4random()%5;//1~5
+    
+    
+    
+    
     for (int i=0; i<count; i+=2) {
         NSNumber *num=[NSNumber numberWithInt:arc4random() % (100+1)];//0~100
         self.myPlotData[i][2]=num;
@@ -150,6 +367,8 @@
         self.myPlotData[i][2]=tmp;
     }
     
+    [self rearrangeData];
+    
     
     CATransition *animation = [CATransition animation];
     animation.type = kCATransitionFade;
@@ -159,6 +378,7 @@
     self.pieChart.hidden = YES;
     [self.pieChart reloadPlotData];
     [self.pieChart reloadDataLabels];
+    [self.pieChart reloadSliceFills];
     
     //[self takeScreenshot:[NSString stringWithFormat:@"%d.png",times]];
     self.pieChart.hidden=NO;
@@ -171,6 +391,7 @@
     self.beforeInsertSeperator=YES;
     [self generateData];
     [self insertSeperatorData];
+    [self rearrangeData];
     [self configureHost];
     [self configureGraph];
     
@@ -222,7 +443,7 @@
      duration:1.25];
     */
     
-    [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(changePlotData) userInfo:nil repeats:YES];
+    [NSTimer scheduledTimerWithTimeInterval:8 target:self selector:@selector(changePlotData) userInfo:nil repeats:YES];
     
 }
 
