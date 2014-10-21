@@ -15,5 +15,5 @@
     #import <Foundation/Foundation.h>
 #import "CPDConstants.h"
 #import "CPDStockPriceStore.h"
-#import "CorePlot-CocoaTouch.h"
+
 #endif

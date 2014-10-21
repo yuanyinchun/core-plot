@@ -120,6 +120,8 @@ NSString *const CPTPieChartBindingPieSliceRadialOffsets = @"sliceRadialOffsets";
 
 @synthesize rightLabels;
 
+@synthesize enableSeperator;
+
 
 //@synthesize annotationsFrame;
 
@@ -237,6 +239,7 @@ static const CGFloat colorLookupTable[10][3] =
         overlayFill                   = nil;
         labelRotationRelativeToRadius = NO;
         customizeLabelPosition=NO;
+        enableSeperator=NO;
         //annotationsFrame=[[NSMutableArray alloc]init];
         shadowFill=nil;
         totalTextStyle=nil;
@@ -625,6 +628,8 @@ static const CGFloat colorLookupTable[10][3] =
     
     //draw underline for each data label
     NSUInteger idx=0;
+    NSUInteger multiplyFactor=self.enableSeperator?2:1;
+    //NSUInteger tailFactor=self.enableSeperator?1:0;
     for (CPTPlotSpaceAnnotation *anno in self.annotations) {
         
         //NSLog(@"%@",NSStringFromCGRect(anno.contentLayer.frame) );
@@ -638,15 +643,15 @@ static const CGFloat colorLookupTable[10][3] =
         CGPoint originPoint=frame.origin;
         CGPoint tailPoint=CGPointMake(frame.origin.x+frame.size.width, frame.origin.y);
         
-        CGFloat medianAngle=[self medianAngleForPieSliceIndex:idx];
+        CGFloat medianAngle=[self medianAngleForPieSliceIndex:multiplyFactor*idx];
         CGPoint medianPoint=CGPointMake(centerPoint.x+self.pieRadius*cos(medianAngle), centerPoint.y+self.pieRadius*sin(medianAngle));
         
-        if ([self.leftLabels containsObject:[NSNumber numberWithUnsignedInteger:idx]]) {
+        if ([self.leftLabels containsObject:[NSNumber numberWithUnsignedInteger:multiplyFactor*idx]]) {
             CGPathMoveToPoint(mypath, NULL, medianPoint.x, medianPoint.y);
             CGPathAddLineToPoint(mypath, NULL, tailPoint.x,tailPoint.y);
             CGPathAddLineToPoint(mypath, NULL, originPoint.x,originPoint.y);
         }
-        if ([self.rightLabels containsObject:[NSNumber numberWithUnsignedInteger:idx]]) {
+        if ([self.rightLabels containsObject:[NSNumber numberWithUnsignedInteger:multiplyFactor*idx]]) {
             CGPathMoveToPoint(mypath, NULL, medianPoint.x, medianPoint.y);
             CGPathAddLineToPoint(mypath, NULL, originPoint.x,originPoint.y);
             CGPathAddLineToPoint(mypath, NULL, tailPoint.x,tailPoint.y);
@@ -698,7 +703,26 @@ static const CGFloat colorLookupTable[10][3] =
                 CGContextAddPath(context, slicePath);
                 [currentFill fillPathInContext:context];
             }
-
+            
+            
+            //draw shadow
+            if (!self.enableSeperator ||
+                (self.enableSeperator && currentIndex%2==0 )) {
+                CGContextSaveGState(context);
+                CGMutablePathRef shadowPath=CGPathCreateMutable();
+                [self addShadowToPath:shadowPath centerPoint:center startingAngle:startingAngle finishingAngle:finishingAngle];
+                CGPathCloseSubpath(shadowPath);
+                if([self.shadowFill isKindOfClass:fillClass]){
+                CGContextBeginPath(context);
+                CGContextAddPath(context, shadowPath);
+                [self.shadowFill fillPathInContext:context];
+                }
+                CGPathRelease(shadowPath);
+                CGContextRestoreGState(context);
+            }
+           
+            
+            
             // Draw the border line around the slice
             if ( borderStyle ) {
                 CGContextBeginPath(context);
@@ -719,6 +743,8 @@ static const CGFloat colorLookupTable[10][3] =
 
             CGPathRelease(slicePath);
             CGContextRestoreGState(context);
+            
+            
 
             startingWidth += currentWidth;
             
@@ -756,6 +782,7 @@ static const CGFloat colorLookupTable[10][3] =
         CGPathRelease(fillPath);
     }
     
+    /*
     //draw shadow
     CGMutablePathRef shadowPath=CGPathCreateMutable();
     //CGPathMoveToPoint(shadowPath, NULL, centerPoint.x, centerPoint.y);
@@ -763,6 +790,7 @@ static const CGFloat colorLookupTable[10][3] =
     CGContextBeginPath(context);
     CGContextAddPath(context, shadowPath);
     [self.shadowFill fillPathInContext:context];
+    */
     
     //draw total number;
     CGFloat total=0;
@@ -819,6 +847,17 @@ static const CGFloat colorLookupTable[10][3] =
             break;
     }
     return angle;
+}
+
+-(void)addShadowToPath:(CGMutablePathRef)shadowPath centerPoint:(CGPoint)center startingAngle:(CGFloat)startingAngle
+        finishingAngle:(CGFloat)finishingAngle
+{
+    bool direction      = (self.sliceDirection == CPTPieDirectionClockwise) ? true : false;
+    CGFloat innerRadius = self.pieInnerRadius;
+    
+    CGPathAddArc(shadowPath, NULL, center.x, center.y, self.pieRadius, startingAngle, finishingAngle, direction);
+    CGPathAddArc(shadowPath, NULL, center.x, center.y, innerRadius+(self.pieRadius-innerRadius)*2/5, finishingAngle, startingAngle, !direction);
+
 }
 
 -(void)addSliceToPath:(CGMutablePathRef)slicePath centerPoint:(CGPoint)center startingAngle:(CGFloat)startingAngle finishingAngle:(CGFloat)finishingAngle
@@ -1038,25 +1077,31 @@ static const CGFloat colorLookupTable[10][3] =
             
             CGFloat labelAngle = [self radiansForPieSliceValue:startingWidth + currentWidth / CPTFloat(2.0)];
             
-            CGFloat verticalLength=self.pieRadius+self.pieInnerRadius;
+            
+            CGFloat verticalLength=2*self.pieInnerRadius;
             CGFloat xAxisDisplacement=left ? -labelRadius:labelRadius;
             CGFloat yAxisDisplacement=0.0;
             if(total%2){//odd
-                yAxisDisplacement=verticalLength/total*(total/2-pos);
+                if (total==1) {
+                    yAxisDisplacement=10.0f;
+                }else
+                    yAxisDisplacement=verticalLength/(total-1)*((NSInteger)(total/2)-(NSInteger)pos);
             }else{//even
                 if(pos<total/2)
                     yAxisDisplacement=verticalLength/total*(total/2-pos);
                 else{
-                    yAxisDisplacement=verticalLength/total*(total/2-pos-1.0f);
+                    yAxisDisplacement=verticalLength/total*((NSInteger)total/2-(NSInteger)pos-1);
                 }
             }
             
+            
             label.displacement = CPTPointMake(xAxisDisplacement ,  yAxisDisplacement);
+            //label.displacement=CPTPointMake(xAxisDisplacement-xAxisDisplacement,yAxisDisplacement);
+            
             /*
             NSLog(@"index:%d,anchorPoint:%@,xDisplacement:%f,yDisplacement:%f",idx,label.anchorPlotPoint,label.displacement.x,label.displacement.y);
             NSLog(@"%f,%f",centerPoint.x,centerPoint.y);
              */
-            //label.displacement = CPTPointMake(xAxisDisplacement-xAxisDisplacement, yAxisDisplacement-yAxisDisplacement);
             
             if ( self.labelRotationRelativeToRadius ) {
                 CGFloat rotation = [self normalizedPosition:self.labelRotation + labelAngle];
@@ -1147,13 +1192,20 @@ static const CGFloat colorLookupTable[10][3] =
         [self defaultPositionLabelAnnotation:label forIndex:idx];
     }
     else{
-        if(idx < self.cachedDataCount-1){
+        NSUInteger tail=0;
+        if (self.enableSeperator==NO) {
+            tail=1;
+        }else
+            tail=2;
+        
+       if(idx < self.cachedDataCount-tail){
             return;
         }
-        if (idx == self.cachedDataCount-1) {//all annotations are added by now.
+        
+        if (idx == self.cachedDataCount-tail) {//all annotations are added by now.
             [self.leftLabels removeAllObjects];
             [self.rightLabels removeAllObjects];
-            for (NSUInteger i=0; i<=idx; i++) {
+            for (NSUInteger i=0; i<=idx; i=i+tail) {
                 CGFloat medianAngle=[self medianAngleForPieSliceIndex:i];
                 if (medianAngle>=-M_PI_2 && medianAngle<=M_PI_2) {
                     [self.rightLabels addObject:[NSNumber numberWithUnsignedInteger:i]];
@@ -1162,22 +1214,27 @@ static const CGFloat colorLookupTable[10][3] =
                     [self.leftLabels addObject:[NSNumber numberWithUnsignedInteger:i]];
                 }
             }
-            
+            self.leftLabels=[[[self.leftLabels reverseObjectEnumerator] allObjects]mutableCopy];
             NSUInteger leftCount=[self.leftLabels count];
             NSUInteger rightCount=[self.rightLabels count];
-            for (NSUInteger i=0; i<self.cachedDataCount; i++){
+            NSUInteger annoIdx=0;
+            for (NSUInteger i=0; i<self.cachedDataCount; i=i+tail){
+                if(self.enableSeperator==YES)
+                    annoIdx=i/2;
+                else
+                    annoIdx=i;
                 NSUInteger pos;
                 if ((pos=[self.leftLabels indexOfObject:[NSNumber numberWithUnsignedInteger:i]])
                     !=NSNotFound
                     ) {
-                    [self customizePositionLabelAnnotation:self.annotations[i]
+                    [self customizePositionLabelAnnotation:self.annotations[annoIdx]
                                                   forIndex:i
                                                       left:YES
                                                        pos: pos                  total:leftCount
                                                   ];
                 }
                 else if ((pos=[self.rightLabels indexOfObject:[NSNumber numberWithUnsignedInteger:i]])!=NSNotFound) {
-                    [self customizePositionLabelAnnotation:self.annotations[i]
+                    [self customizePositionLabelAnnotation:self.annotations[annoIdx]
                                                   forIndex:i
                                                       left:NO
                                                        pos: pos                  total:rightCount

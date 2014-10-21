@@ -111,8 +111,8 @@
 		6F053D5719ED2EAF009F2948 /* ScatterPlotDemo */ = {
 			isa = PBXGroup;
 			children = (
-				6FEB6F1919CF0701005428B1 /* CPDScatterPlotViewController.m */,
 				6FEB6F1819CF06F5005428B1 /* CPDScatterPlotViewController.h */,
+				6FEB6F1919CF0701005428B1 /* CPDScatterPlotViewController.m */,
 			);
 			name = ScatterPlotDemo;
 			sourceTree = "<group>";
@@ -449,7 +449,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"/Users/yuanyinchun/projects/core-plot/framework/**",
+					"/Users/yyc/Documents/projects/core-plot/framework/**",
 				);
 				INFOPLIST_FILE = "ScatterPlotDemo/ScatterPlotDemo-Info.plist";
 				OTHER_LDFLAGS = "-all_load";
@@ -468,7 +468,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"/Users/yuanyinchun/projects/core-plot/framework/**",
+					"/Users/yyc/Documents/projects/core-plot/framework/**",
 				);
 				INFOPLIST_FILE = "ScatterPlotDemo/ScatterPlotDemo-Info.plist";
 				OTHER_LDFLAGS = "-all_load";

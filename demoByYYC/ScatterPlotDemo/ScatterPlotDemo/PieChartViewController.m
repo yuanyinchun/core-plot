@@ -10,6 +10,8 @@
 
 @interface PieChartViewController ()
 
+@property (nonatomic) BOOL beforeInsertSeperator;
+
 @end
 
 @implementation PieChartViewController
@@ -26,19 +28,69 @@
 -(void)generateData
 {
     
-    self.myPlotData=@[
-                          @[@"warning",@4,@20],
-                          @[@"notify",@1,@40],
-                          @[@"info",@6,@80],
-                          ];
-    self.myColor=@{
-                       @"warning":[UIColor blueColor],
-                       @"notify":[UIColor greenColor],
-                       @"info":[UIColor yellowColor]
-                       };
+    self.myPlotData=[[NSMutableArray alloc]init];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"error",@12,@19, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"warning",@1,@5, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@37, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"info",@6,@41, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@82, nil]];
+    
+    /*
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"error",@12,@25, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"warning",@1,@21, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@20, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"info",@6,@15, nil]];
+    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@34, nil]];
+     */
 
+    self.myColor=@{
+                   @"error":[UIColor colorWithRed:251/255.0 green:177/255.0 blue:80/255.0 alpha:1.0],
+                   @"warning":[UIColor colorWithRed:109/255.0 green:216/255.0 blue:198/255.0 alpha:1.0],
+                   @"notify":[UIColor colorWithRed:39/255.0 green:213/255.0 blue:60/255.0 alpha:1.0 ],
+                   @"info":[UIColor colorWithRed:251/255.0 green:220/255.0 blue:34/255.0 alpha:1.0],
+                   @"fatal":[UIColor colorWithRed:230/255.0 green:76/255.0 blue:101/255.0 alpha:1.0],
+                   @"seperator":[UIColor clearColor]
+                   };
+    
 }
 
+
+-(int)getSeperatorData
+{
+    int totalNumber=0;
+    double seperatorData=0.0;
+    int factor=64;
+    if (self.beforeInsertSeperator==NO){
+        for (int i=0;i<[ self.myPlotData count];i+=2) {
+        totalNumber+=[self.myPlotData[i][2] intValue];
+        }
+        
+        seperatorData= M_PI*totalNumber/[self.myPlotData count]/2/(factor-M_PI);
+    }
+    else{
+        for (NSArray *array in self.myPlotData) {
+            totalNumber+=[array[2] intValue];
+        }
+        
+        seperatorData =M_PI*totalNumber/[self.myPlotData count]/(factor-M_PI);
+    }
+    
+    return (int)seperatorData;
+}
+
+-(void)insertSeperatorData
+{
+    
+    int seperatorData=[self getSeperatorData];
+    NSMutableArray *newArray=[[NSMutableArray alloc]init];
+    for (NSArray * array in self.myPlotData) {
+        [newArray addObject:array];
+        [newArray addObject:[NSMutableArray arrayWithObjects:@"seperator",[NSNumber numberWithInt:seperatorData],[NSNumber numberWithInt:seperatorData], nil ]];
+    }
+    self.myPlotData=newArray;
+    self. beforeInsertSeperator=NO;
+    
+}
 
 -(void)configureHost {
 	self.hostView = [(CPTGraphHostingView *) [CPTGraphHostingView alloc] initWithFrame:CGRectMake(0, 0, 320, 150)];
@@ -63,10 +115,60 @@
     graph.plotAreaFrame.borderLineStyle =nil;
 
 }
+
+-(void)takeScreenshot:(NSString *)imgName
+{
+    
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+        UIGraphicsBeginImageContextWithOptions(self.view.window.bounds.size, NO, [UIScreen mainScreen].scale);
+    else
+        UIGraphicsBeginImageContext(self.view.window.bounds.size);
+    [self.view.window.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    NSData * data = UIImagePNGRepresentation(image);
+    [data writeToFile:@"imgName" atomically:YES];
+    
+}
+
+-(void)changePlotData{
+    static int times=1;
+    
+    NSUInteger count=[self.myPlotData count];
+    for (int i=0; i<count; i+=2) {
+        NSNumber *num=[NSNumber numberWithInt:arc4random() % (100+1)];//0~100
+        self.myPlotData[i][2]=num;
+    }
+    
+    for (int i=1;i<count;i+=2){ //change seperator data
+        
+    }
+    
+    CATransition *animation = [CATransition animation];
+    animation.type = kCATransitionFade;
+    animation.duration =1;
+    [self.pieChart addAnimation:animation forKey:nil];
+    self.pieChart.hidden = YES;
+    
+    
+    
+    [self.pieChart reloadPlotData];
+   
+    NSLog(@"%d ----------\n%@",times,self.myPlotData);
+    
+    [self takeScreenshot:[NSString stringWithFormat:@"%d.png",times]];
+    times++;
+    
+    self.pieChart.hidden=NO;
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.beforeInsertSeperator=YES;
     [self generateData];
+    [self insertSeperatorData];
     [self configureHost];
     [self configureGraph];
     
@@ -82,9 +184,12 @@
     piePlot.identifier      = @"outer";
     piePlot.labelOffset=50.0;
     piePlot.customizeLabelPosition=YES;
-    piePlot.startAngle=M_PI;
+    piePlot.startAngle=M_PI_2;
     piePlot.sliceDirection  = CPTPieDirectionClockwise;
-    piePlot.delegate        = self;
+    piePlot.adjustLabelAnchors=NO;
+    piePlot.enableSeperator=YES;
+    piePlot.delegate = self;
+    self.pieChart=piePlot;
     
     CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
     lineStyle.lineFill=[CPTFill fillWithColor:[CPTColor whiteColor]];
@@ -92,7 +197,7 @@
     lineStyle.lineCap=kCGLineCapRound;
     piePlot.dataLabelLineStyle=lineStyle;
     
-    CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:0.8 green:0.8 blue:0.8 alpha:0.1]];
+    CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:1 green:1 blue:1 alpha:0.1]];
     piePlot.shadowFill=shadowFill;
     
     CPTMutableTextStyle *totalStyle=[CPTMutableTextStyle textStyle];
@@ -100,19 +205,23 @@
     piePlot.totalTextStyle=totalStyle;
     
     [self.hostView.hostedGraph addPlot:piePlot];
+    
     /*
-     if ( animated ) {
      [CPTAnimation animate:piePlot
      property:@"startAngle"
-     from:M_PI_2
-     to:M_PI_4
+     from:0
+     to:2*M_PI
      duration:1.25];
+    
      [CPTAnimation animate:piePlot
      property:@"endAngle"
-     from:M_PI_2
-     to:3.0 * M_PI_4
+     from:2*M_PI
+     to:0
      duration:1.25];
-     }*/
+    */
+    
+    [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(changePlotData) userInfo:nil repeats:YES];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -144,6 +253,11 @@
 
 -(CPTLayer *)dataLabelForPlot:(CPTPlot *)plot recordIndex:(NSUInteger)index
 {
+    if (self.pieChart.enableSeperator==YES) {
+        if (index%2) {//odd
+            return nil;
+        }
+    }
     static CPTMutableTextStyle *whiteText = nil;
     static dispatch_once_t onceToken;
     
@@ -185,11 +299,14 @@
 
 -(CPTFill *)sliceFillForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)idx
 {
-    
-    UIColor *color=self.myColor[
-                                self.myPlotData[idx][0]
-                                ];
-    return [[CPTFill alloc]initWithColor:[[CPTColor alloc]initWithCGColor:  color.CGColor                                             ]];
+    UIColor *color=nil;
+    if (idx%2) {//odd
+        color=self.myColor[@"seperator"];
+        return [[CPTFill alloc]initWithColor:[[CPTColor alloc]initWithCGColor:  color.CGColor                                             ]];    }
+    else{
+        color=self.myColor[self.myPlotData[idx][0]];
+        return [[CPTFill alloc]initWithColor:[[CPTColor alloc]initWithCGColor:  color.CGColor                                             ]];
+    }
 }
 
 @end

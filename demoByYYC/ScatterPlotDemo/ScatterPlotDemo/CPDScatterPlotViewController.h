@@ -5,6 +5,7 @@
 //  Created by Fahim Farook on 19/5/12.
 //  Copyright 2012 RookSoft Pte. Ltd. All rights reserved.
 //
+#import "CorePlot-CocoaTouch.h"
 
 @interface CPDScatterPlotViewController : UIViewController <CPTPlotDataSource>
 

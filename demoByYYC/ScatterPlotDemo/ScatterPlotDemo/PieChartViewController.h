@@ -7,11 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CorePlot-CocoaTouch.h"
 
 @interface PieChartViewController : UIViewController<CPTPlotSpaceDelegate, CPTPlotDataSource, CPTAnimationDelegate>
 
 @property (nonatomic, strong) CPTGraphHostingView *hostView;
-@property(nonatomic,strong) NSArray *myPlotData;
+@property(nonatomic,strong) NSMutableArray *myPlotData;
 @property(nonatomic,strong) NSDictionary *myColor;
+@property(nonatomic,strong) CPTPieChart *pieChart;
 
 @end
