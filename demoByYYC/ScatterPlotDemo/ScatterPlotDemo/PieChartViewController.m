@@ -270,7 +270,7 @@
 {
     int totalNumber=0;
     double seperatorData=0.0;
-    int factor=128;
+    int factor=512;
     int currentCount=[self.myPlotData count];
     
     if (self.beforeInsertSeperator==NO){
@@ -278,14 +278,16 @@
         totalNumber+=[self.myPlotData[i][2] intValue];
         }
         currentCount/=2;
-        seperatorData= M_PI*totalNumber/currentCount/(factor-M_PI);
+        //seperatorData= M_PI*totalNumber/currentCount/(factor-M_PI);
+        seperatorData= M_PI*totalNumber/(factor-currentCount*M_PI);
     }
     else{
         for (NSArray *array in self.myPlotData) {
             totalNumber+=[array[2] intValue];
         }
         
-        seperatorData =M_PI*totalNumber/currentCount/(factor-M_PI);
+        //seperatorData =M_PI*totalNumber/currentCount/(factor-M_PI);
+        seperatorData= M_PI*totalNumber/(factor-currentCount*M_PI);
     }
     
     
@@ -344,6 +346,7 @@
     [data writeToFile:@"imgName" atomically:YES];
     
 }
+
 
 -(void)changePlotData{
     //static int times=1;
@@ -415,8 +418,8 @@
     self.pieChart=piePlot;
     
     CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
-    lineStyle.lineFill=[CPTFill fillWithColor:[CPTColor whiteColor]];
-    lineStyle.lineWidth=0.5f;
+    lineStyle.lineFill=[CPTFill fillWithColor:[CPTColor lightGrayColor]];
+    //lineStyle.lineWidth=2.0f;
     lineStyle.lineCap=kCGLineCapRound;
     piePlot.dataLabelLineStyle=lineStyle;
     
@@ -443,7 +446,7 @@
      duration:1.25];
     */
     
-    [NSTimer scheduledTimerWithTimeInterval:8 target:self selector:@selector(changePlotData) userInfo:nil repeats:YES];
+    [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(changePlotData) userInfo:nil repeats:YES];
     
 }
 

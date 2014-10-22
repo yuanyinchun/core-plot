@@ -646,6 +646,12 @@ static const CGFloat colorLookupTable[10][3] =
         CGFloat medianAngle=[self medianAngleForPieSliceIndex:multiplyFactor*idx];
         CGPoint medianPoint=CGPointMake(centerPoint.x+self.pieRadius*cos(medianAngle), centerPoint.y+self.pieRadius*sin(medianAngle));
         
+        if ( self.alignsPointsToPixels ) {
+            originPoint = CPTAlignPointToUserSpace(context, originPoint);
+            tailPoint = CPTAlignIntegralPointToUserSpace(context, tailPoint);
+            medianPoint = CPTAlignIntegralPointToUserSpace(context, medianPoint);
+        }
+        
         if ([self.leftLabels containsObject:[NSNumber numberWithUnsignedInteger:multiplyFactor*idx]]) {
             CGPathMoveToPoint(mypath, NULL, medianPoint.x, medianPoint.y);
             CGPathAddLineToPoint(mypath, NULL, tailPoint.x,tailPoint.y);
