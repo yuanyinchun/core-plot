@@ -14,6 +14,9 @@
 @property (nonatomic, strong) CPTGraphHostingView *hostView;
 @property(nonatomic,strong) NSMutableArray *myPlotData;
 @property(nonatomic,strong) NSDictionary *myColor;
+
+@property(nonatomic,strong) CPTPieChart *pieChartZero;
+@property(nonatomic,strong) CPTPieChart *pieChartOne;
 @property(nonatomic,strong) CPTPieChart *pieChart;
 
 @end

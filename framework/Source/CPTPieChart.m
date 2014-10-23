@@ -114,6 +114,8 @@ NSString *const CPTPieChartBindingPieSliceRadialOffsets = @"sliceRadialOffsets";
 
 @synthesize totalTextStyle;
 
+@synthesize totalNumber;
+
 @synthesize shadowFill;
 
 @synthesize leftLabels;
@@ -243,6 +245,7 @@ static const CGFloat colorLookupTable[10][3] =
         //annotationsFrame=[[NSMutableArray alloc]init];
         shadowFill=nil;
         totalTextStyle=nil;
+        totalNumber=-1;
         leftLabels=[[NSMutableArray alloc] init];
         rightLabels=[[NSMutableArray alloc] init];
         pointingDeviceDownIndex       = NSNotFound;
@@ -789,15 +792,23 @@ static const CGFloat colorLookupTable[10][3] =
     
     
     //draw total number;
-    CGFloat total=0;
-    NSUInteger tail=self.enableSeperator?2:1;
-    for(NSUInteger i=0;i<self.cachedDataCount;i+=tail){
-        CGFloat currentWidth = CPTFloat([self cachedDoubleForField:CPTPieChartFieldSliceWidth recordIndex:i]);
-        total+=currentWidth;
-   }
+    NSString *totalStr=nil;
+    
+    if (self.totalNumber!=-1) {
+        totalStr=[NSString stringWithFormat:@"%d",self.totalNumber];
+    }else{
+        CGFloat total=0;
+        NSUInteger tail=self.enableSeperator?2:1;
+        for(NSUInteger i=0;i<self.cachedDataCount;i+=tail){
+            CGFloat currentWidth = CPTFloat([self cachedDoubleForField:CPTPieChartFieldSliceWidth recordIndex:i]);
+            total+=currentWidth;
+            }
+        totalStr=[NSString stringWithFormat:@"%d",(int)total];
+    }
+    self.totalNumber=-1;
+    
     float tmp=sqrtf(2)*self.pieInnerRadius/2;
     CGRect totalRect=CGRectMake(centerPoint.x-tmp, centerPoint.y-tmp, tmp*2, tmp*2);
-    NSString *totalStr=[NSString stringWithFormat:@"%d",(int)total];
     
     CGContextSaveGState(context);
     CGContextTranslateCTM(context, 0.0,self.bounds.size.height);

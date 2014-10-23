@@ -10,8 +10,13 @@
 
 @interface PieChartViewController ()
 
-@property (nonatomic) BOOL beforeInsertSeperator;
 @property (nonatomic,readwrite) NSMutableArray *cumulateArray;
+
+@property (nonatomic) CGFloat outerRadius;
+@property (nonatomic) CGFloat innerRadius;
+@property (nonatomic,readwrite) NSMutableArray *source;
+
+@property (nonatomic,readwrite) CPTPieChart *currentPieChart;
 
 @end
 
@@ -20,65 +25,48 @@
 
 #pragma mark - Life Cycle
 
+-(id)init
+{
+    self=[super init];
+    if(self){
+        self.myPlotData=[[NSMutableArray alloc]init];
+        self.myColor=@{
+                       @"error":[UIColor colorWithRed:251/255.0 green:177/255.0 blue:80/255.0 alpha:1.0],
+                       @"warning":[UIColor colorWithRed:109/255.0 green:216/255.0 blue:198/255.0 alpha:1.0],
+                       @"notify":[UIColor colorWithRed:39/255.0 green:213/255.0 blue:60/255.0 alpha:1.0 ],
+                       @"info":[UIColor colorWithRed:251/255.0 green:220/255.0 blue:34/255.0 alpha:1.0],
+                       @"fatal":[UIColor colorWithRed:230/255.0 green:76/255.0 blue:101/255.0 alpha:1.0],
+                       @"seperator":[UIColor clearColor]
+                       };
+        
+        self.source=[[NSMutableArray alloc]init];
+        [self.source addObject:[NSMutableArray arrayWithObjects:@"error",@12,@45, nil]];
+        [self.source addObject:[NSMutableArray arrayWithObjects:@"warning",@1,@73, nil]];
+        [self.source addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@59, nil]];
+        [self.source addObject:[NSMutableArray arrayWithObjects:@"info",@6,@88, nil]];
+        [self.source addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@31, nil]];
+
+        
+    }
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.beforeInsertSeperator=YES;
-    [self generateData];
-    [self insertSeperatorData];
-    [self rearrangeData];
+    
+    [self checkPlotData];
     [self configureHost];
     [self configureGraph];
+    [self configurePieCharts];
     
     
-    // Add pie chart
-    const CGFloat outerRadius=50.0;
-    const CGFloat innerRadius = outerRadius / 2.0;
+
     
-    CPTPieChart *piePlot = [[CPTPieChart alloc] init];
-    piePlot.dataSource      = self;
-    piePlot.pieRadius       = outerRadius;
-    piePlot.pieInnerRadius  = innerRadius + 5.0;
-    piePlot.identifier      = @"outer";
-    piePlot.labelOffset=50.0;
-    piePlot.customizeLabelPosition=YES;
-    piePlot.startAngle=M_PI_2;
-    piePlot.sliceDirection  = CPTPieDirectionClockwise;
-    piePlot.adjustLabelAnchors=NO;
-    piePlot.enableSeperator=YES;
-    piePlot.delegate = self;
-    self.pieChart=piePlot;
-    
-    CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
-    lineStyle.lineFill=[CPTFill fillWithColor:[CPTColor lightGrayColor]];
-    //lineStyle.lineWidth=2.0f;
-    lineStyle.lineCap=kCGLineCapRound;
-    piePlot.dataLabelLineStyle=lineStyle;
-    
-    CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:1 green:1 blue:1 alpha:0.1]];
-    piePlot.shadowFill=shadowFill;
-    
-    CPTMutableTextStyle *totalStyle=[CPTMutableTextStyle textStyle];
-    totalStyle.color=[CPTColor lightGrayColor];
-    piePlot.totalTextStyle=totalStyle;
-    
-    [self.hostView.hostedGraph addPlot:piePlot];
-    
-    /*
-     [CPTAnimation animate:piePlot
-     property:@"startAngle"
-     from:0
-     to:2*M_PI
-     duration:1.25];
-     
-     [CPTAnimation animate:piePlot
-     property:@"endAngle"
-     from:2*M_PI
-     to:0
-     duration:1.25];
-     */
     
     [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(changePlotData) userInfo:nil repeats:YES];
+ 
+    
     
 }
 
@@ -94,7 +82,7 @@
 
 -(void)configureHost {
     self.hostView = [(CPTGraphHostingView *) [CPTGraphHostingView alloc] initWithFrame:CGRectMake(0, 0, 320, 150)];
-    self.hostView.allowPinchScaling = YES;
+    self.hostView.allowPinchScaling = NO;
     [self.view addSubview:self.hostView];
 }
 
@@ -116,74 +104,190 @@
     
 }
 
-#pragma mark - Data generation
-
--(void)generateData
+-(void)configurePieCharts
 {
+    self.outerRadius = 50.0;
+    self.innerRadius = self.outerRadius / 2.0;
+    [self configPieChartZero];
+    [self configPieChartOne];
+    [self configPieChart];
     
-    self.myPlotData=[[NSMutableArray alloc]init];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"error",@12,@45, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"warning",@1,@73, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@59, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"info",@6,@88, nil]];
-    [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@31, nil]];
-    
-    /*
-     [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"error",@12,@25, nil]];
-     [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"warning",@1,@21, nil]];
-     [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@20, nil]];
-     [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"info",@6,@15, nil]];
-     [self.myPlotData addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@34, nil]];
-     */
-    
-    self.myColor=@{
-                   @"error":[UIColor colorWithRed:251/255.0 green:177/255.0 blue:80/255.0 alpha:1.0],
-                   @"warning":[UIColor colorWithRed:109/255.0 green:216/255.0 blue:198/255.0 alpha:1.0],
-                   @"notify":[UIColor colorWithRed:39/255.0 green:213/255.0 blue:60/255.0 alpha:1.0 ],
-                   @"info":[UIColor colorWithRed:251/255.0 green:220/255.0 blue:34/255.0 alpha:1.0],
-                   @"fatal":[UIColor colorWithRed:230/255.0 green:76/255.0 blue:101/255.0 alpha:1.0],
-                   @"seperator":[UIColor clearColor]
-                   };
-    
-}
-
-
--(void)changePlotData{
-    //static int times=1;
-    
-    NSUInteger count=[self.myPlotData count];
-    
-    //int itemNum=1+arch4random()%5;//1~5
-    
-    
-    
-    
-    for (int i=0; i<count; i+=2) {
-        NSNumber *num=[NSNumber numberWithInt:arc4random() % (100+1)];//0~100
-        self.myPlotData[i][2]=num;
-    }
-    
-    double seperatorData=[self getSeperatorData];
-    for (int i=1;i<count;i+=2){ //change seperator data
-        NSNumber *tmp=[NSNumber numberWithDouble:seperatorData];
-        self.myPlotData[i][1]=tmp;
-        self.myPlotData[i][2]=tmp;
-    }
-    
-    [self rearrangeData];
-    
+    self.pieChartZero.hidden=NO;
+    self.pieChartOne.hidden=YES;
+    self.pieChart.hidden=YES;
+    self.currentPieChart=self.pieChartZero;
     
     CATransition *animation = [CATransition animation];
     animation.type = kCATransitionFade;
     animation.duration =1;
+    [self.pieChartZero addAnimation:animation forKey:nil];
+    [self.pieChartOne addAnimation:animation forKey:nil];
     [self.pieChart addAnimation:animation forKey:nil];
+}
+
+
+
+-(void)configPieChartZero
+{
+    CPTPieChart *pieChart = [[CPTPieChart alloc] init];
+    pieChart.dataSource      = self;
+    pieChart.pieRadius       = self.outerRadius;
+    pieChart.pieInnerRadius  = self.innerRadius + 5.0;
+    pieChart.identifier      = @"outer";
+    pieChart.startAngle=M_PI;
+    pieChart.sliceDirection  = CPTPieDirectionClockwise;
+    pieChart.adjustLabelAnchors=NO;
+    pieChart.enableSeperator=YES;
+    pieChart.delegate = self;
+    pieChart.centerAnchor=CGPointMake(0.2, 0.5);
+    self.pieChartZero=pieChart;
     
-    self.pieChart.hidden = YES;
+    CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:1 green:1 blue:1 alpha:0.1]];
+    pieChart.shadowFill=shadowFill;
+    
+    CPTMutableTextStyle *totalStyle=[CPTMutableTextStyle textStyle];
+    totalStyle.color=[CPTColor lightGrayColor];
+    pieChart.totalTextStyle=totalStyle;
+    
+    [self.hostView.hostedGraph addPlot:pieChart];
+
+}
+
+-(void)configPieChartOne
+{
+    CPTPieChart *pieChart = [[CPTPieChart alloc] init];
+    pieChart.dataSource      = self;
+    pieChart.pieRadius       = self.outerRadius;
+    pieChart.pieInnerRadius  = self.innerRadius + 5.0;
+    pieChart.identifier      = @"outer";
+    pieChart.labelOffset=50.0;
+    pieChart.customizeLabelPosition=YES;
+    pieChart.startAngle=M_PI;
+    pieChart.sliceDirection  = CPTPieDirectionClockwise;
+    pieChart.adjustLabelAnchors=NO;
+    pieChart.enableSeperator=YES;
+    pieChart.delegate = self;
+    pieChart.centerAnchor=CGPointMake(0.2, 0.5);
+    self.pieChartOne=pieChart;
+    
+    CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
+    lineStyle.lineFill=[CPTFill fillWithColor:[CPTColor lightGrayColor]];
+    lineStyle.lineCap=kCGLineCapRound;
+    pieChart.dataLabelLineStyle=lineStyle;
+    
+    CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:1 green:1 blue:1 alpha:0.1]];
+    pieChart.shadowFill=shadowFill;
+    
+    CPTMutableTextStyle *totalStyle=[CPTMutableTextStyle textStyle];
+    totalStyle.color=[CPTColor lightGrayColor];
+    pieChart.totalTextStyle=totalStyle;
+    
+    [self.hostView.hostedGraph addPlot:pieChart];
+
+}
+
+-(void)configPieChart
+{
+    CPTPieChart *pieChart = [[CPTPieChart alloc] init];
+    pieChart.dataSource      = self;
+    pieChart.pieRadius       = self.outerRadius;
+    pieChart.pieInnerRadius  = self.innerRadius + 5.0;
+    pieChart.identifier      = @"outer";
+    pieChart.labelOffset=50.0;
+    pieChart.customizeLabelPosition=YES;
+    pieChart.startAngle=M_PI_2;
+    pieChart.sliceDirection  = CPTPieDirectionClockwise;
+    pieChart.adjustLabelAnchors=NO;
+    pieChart.enableSeperator=YES;
+    pieChart.delegate = self;
+    self.pieChart=pieChart;
+    
+    CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
+    lineStyle.lineFill=[CPTFill fillWithColor:[CPTColor lightGrayColor]];
+    lineStyle.lineCap=kCGLineCapRound;
+    pieChart.dataLabelLineStyle=lineStyle;
+    
+    CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:1 green:1 blue:1 alpha:0.1]];
+    pieChart.shadowFill=shadowFill;
+    
+    CPTMutableTextStyle *totalStyle=[CPTMutableTextStyle textStyle];
+    totalStyle.color=[CPTColor lightGrayColor];
+    pieChart.totalTextStyle=totalStyle;
+    
+    self.pieChart.hidden=YES;
+    [self.hostView.hostedGraph addPlot:pieChart];
+    
+}
+
+#pragma mark - Data generation
+
+-(void)checkPlotData
+{
+    switch ([self.myPlotData count]) {
+        case 0:
+            [self.myPlotData addObjectsFromArray:
+             @[
+               @[@"notify",@10,@10],
+               @[@"notify",@10,@10]
+               ]
+             ];
+            [self insertSeperatorData];
+            self.pieChartZero.totalNumber=0; //manually set total number;
+            break;
+        case 1:
+            [self.myPlotData addObject:[self.myPlotData[0] mutableCopy]];
+            [self insertSeperatorData];
+            self.pieChartZero.totalNumber=[self.myPlotData[0][2] intValue]; //manually set total number;
+            break;
+        default:
+            [self insertSeperatorData];
+            break;
+    }
+}
+
+-(void)changePlotData{
+   
+    int itemNum=arc4random()%6;//0~5
+    
+    if (itemNum==0) {
+        [self.myPlotData removeAllObjects];
+        [self checkPlotData];
+        self.currentPieChart.hidden=YES;
+        [self.pieChart reloadPlotData];
+        [self.pieChart reloadSliceFills];
+        self.pieChartZero.hidden=NO;
+        return;
+    }
+    if (itemNum==1) {
+        [self.myPlotData removeAllObjects];
+        [self.myPlotData addObject:[self.source[arc4random()%5] mutableCopy] ]; //add one random data;
+        [self checkPlotData];
+        self.currentPieChart.hidden=YES;
+        [self.pieChart reloadPlotData];
+        [self.pieChart reloadSliceFills];
+        self.pieChartOne.hidden=NO;
+        return;
+    }
+    
+    //2~5 itemNum
+    [self.myPlotData removeAllObjects];
+    int startIdx=arc4random()%5;
+    for (int i=0; i<itemNum; i++) {
+        [self.myPlotData addObject:self.source[(startIdx+i)%[self.source count]]];
+    }
+    
+    for (int i=0; i<itemNum; i++) {
+        NSNumber *num=[NSNumber numberWithInt:arc4random() % (100+1)];//0~100
+        self.myPlotData[i][2]=num;
+    }
+    [self checkPlotData];
+    [self rearrangeData];
+    
+    self.currentPieChart.hidden = YES;
     [self.pieChart reloadPlotData];
     [self.pieChart reloadDataLabels];
     [self.pieChart reloadSliceFills];
     
-    //[self takeScreenshot:[NSString stringWithFormat:@"%d.png",times]];
     self.pieChart.hidden=NO;
 }
 
@@ -195,24 +299,12 @@
     int factor=512;
     int currentCount=[self.myPlotData count];
     
-    if (self.beforeInsertSeperator==NO){
-        for (int i=0;i<[ self.myPlotData count];i+=2) {
-            totalNumber+=[self.myPlotData[i][2] intValue];
-        }
-        currentCount/=2;
-        //seperatorData= M_PI*totalNumber/currentCount/(factor-M_PI);
-        seperatorData= M_PI*totalNumber/(factor-currentCount*M_PI);
-    }
-    else{
-        for (NSArray *array in self.myPlotData) {
-            totalNumber+=[array[2] intValue];
-        }
-        
-        //seperatorData =M_PI*totalNumber/currentCount/(factor-M_PI);
-        seperatorData= M_PI*totalNumber/(factor-currentCount*M_PI);
+   
+    for (NSArray *array in self.myPlotData) {
+        totalNumber+=[array[2] intValue];
     }
     
-    
+    seperatorData= M_PI*totalNumber/(factor-currentCount*M_PI);
     return seperatorData;
 }
 
@@ -227,7 +319,6 @@
         [newArray addObject:[NSMutableArray arrayWithObjects:@"seperator",[NSNumber numberWithDouble:seperatorData],[NSNumber numberWithDouble:seperatorData], nil ]];
     }
     self.myPlotData=newArray;
-    self. beforeInsertSeperator=NO;
     
 }
 
@@ -489,6 +580,10 @@
 
 -(CPTLayer *)dataLabelForPlot:(CPTPlot *)plot recordIndex:(NSUInteger)index
 {
+    if (plot==self.pieChartZero || plot==self.pieChartOne) {
+        return nil;
+    }
+    
     if (self.pieChart.enableSeperator==YES) {
         if (index%2) {//odd
             return nil;

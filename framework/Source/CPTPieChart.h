@@ -207,6 +207,7 @@ typedef NS_ENUM (NSInteger, CPTPieDirection) {
     dataLabelLineStyle;
 @property (nonatomic, readwrite, copy)
     CPTMutableTextStyle *totalTextStyle;
+@property (nonatomic) NSInteger totalNumber;
 @property (nonatomic, readwrite, copy) CPTFill *shadowFill;
 @property (nonatomic, readwrite, copy) CPTFill *overlayFill;
 @property (nonatomic, readwrite) BOOL enableSeperator;
