@@ -805,26 +805,23 @@ static const CGFloat colorLookupTable[10][3] =
             }
         totalStr=[NSString stringWithFormat:@"%d",(int)total];
     }
-    self.totalNumber=-1;
     
     float tmp=sqrtf(2)*self.pieInnerRadius/2;
     CGRect totalRect=CGRectMake(centerPoint.x-tmp, centerPoint.y-tmp, tmp*2, tmp*2);
+    NSLog(@"%@",NSStringFromCGRect(totalRect));
     
     CGContextSaveGState(context);
     CGContextTranslateCTM(context, 0.0,self.bounds.size.height);
     CGContextScaleCTM(context, 1.0, -1.0);
    
     UIFont* font = [self getFontForString:totalStr toFitInRect:totalRect seedFont:[UIFont fontWithName:self.totalTextStyle.fontName size:100]];
-    CGSize strSize=[totalStr sizeWithFont:font];
+    CGSize strSize=[totalStr sizeWithAttributes:@{NSFontAttributeName:font}];
     self.totalTextStyle.fontSize=font.pointSize;
     
-    totalRect=CGRectMake(totalRect.origin.x, totalRect.origin.y+(totalRect.size.height-strSize.height)/2, totalRect
-                         .size.width, strSize.height);
-    
+    totalRect=CGRectMake(totalRect.origin.x+(totalRect.size.width-strSize.width)/2, totalRect.origin.y+(totalRect.size.height-strSize.height)/2, strSize.width*1.1f, strSize.height);
     [totalStr drawInRect:totalRect withTextStyle:self.totalTextStyle inContext:context];
-    
     /*
-     //test usage: stroke totalRect
+    //test usage: stroke totalRect
     CGContextSaveGState(context);
     CGMutablePathRef rectPath=CGPathCreateMutable();
     CGPathAddRect(rectPath, nil, totalRect);
@@ -836,7 +833,6 @@ static const CGFloat colorLookupTable[10][3] =
     CGPathRelease(rectPath);
     CGContextRestoreGState(context);
     */
-    
     CGContextRestoreGState(context);
     
 }
@@ -847,7 +843,7 @@ static const CGFloat colorLookupTable[10][3] =
     UIFont* returnFont = seedFont;
     CGSize stringSize = [string sizeWithFont:returnFont];
     
-    while(stringSize.width > rect.size.width){
+    while(stringSize.width > rect.size.width || stringSize.height > rect.size.width){
         returnFont = [UIFont systemFontOfSize:returnFont.pointSize -1];
         stringSize = [string sizeWithFont:returnFont];
     }
