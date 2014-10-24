@@ -808,7 +808,7 @@ static const CGFloat colorLookupTable[10][3] =
     
     float tmp=sqrtf(2)*self.pieInnerRadius/2;
     CGRect totalRect=CGRectMake(centerPoint.x-tmp, centerPoint.y-tmp, tmp*2, tmp*2);
-    NSLog(@"%@",NSStringFromCGRect(totalRect));
+    //NSLog(@"%@",NSStringFromCGRect(totalRect));
     
     CGContextSaveGState(context);
     CGContextTranslateCTM(context, 0.0,self.bounds.size.height);

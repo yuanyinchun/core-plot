@@ -19,6 +19,11 @@
 @property (nonatomic,readwrite) CPTPieChart *currentPieChart;
 @property (nonatomic,readwrite) CPTPieChart *toBeVisible;
 
+@property (nonatomic,strong) CPTPlotSpaceAnnotation *annoForPieChartZero;
+@property (nonatomic,strong) CPTPlotSpaceAnnotation *annoForPieChartOne;
+
+@property (nonatomic,strong) CPTPlotSpaceAnnotation *currentAnno;
+@property (nonatomic,readwrite) CPTPlotSpaceAnnotation *toBeVisibleAnno;
 @end
 
 @implementation PieChartViewController
@@ -46,7 +51,6 @@
         [self.source addObject:[NSMutableArray arrayWithObjects:@"notify",@1,@59, nil]];
         [self.source addObject:[NSMutableArray arrayWithObjects:@"info",@6,@88, nil]];
         [self.source addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@31, nil]];
-
         
     }
     return self;
@@ -64,38 +68,17 @@
     
     
     [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(changePlotData) userInfo:nil repeats:YES];
- 
     //[NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(hideTest) userInfo:nil repeats:YES];
     
 }
-
 -(void)hideTest
 {
-    /*
-    BOOL flagZero=self.pieChartZero.hidden;
-    self.pieChartZero.hidden=!flagZero;
-    [self.pieChartZero setNeedsDisplay];
-   
+    int opa=self.annoForPieChartZero.contentLayer.opacity;
+    self.annoForPieChartZero.contentLayer.opacity=!opa;
     
-    BOOL flagOne=self.pieChartOne.hidden;
-    self.pieChartOne.hidden=!flagOne;
-    
-    
-    BOOL flag=self.pieChart.hidden;
-    self.pieChart.hidden=!flag;
-    */
-    
-    int opacityZero=self.pieChartZero.opacity;
-    
-    [CPTAnimation animate:self.pieChartZero property:@"opacity" from:opacityZero to:!opacityZero duration:1];
-    
-    //self.pieChartZero.opacity=!opacityZero;
-    
-    int opacityOne=self.pieChartOne.opacity;
-    self.pieChartOne.opacity=!opacityOne;
-    
-    int opacity=self.pieChart.opacity;
-    self.pieChart.opacity=!opacity;
+    int opaOne=self.annoForPieChartOne.contentLayer.opacity;
+    self.annoForPieChartOne.contentLayer.opacity=!opaOne;
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -144,6 +127,10 @@
     self.pieChartOne.opacity=0;
     self.pieChart.opacity=0;
     self.currentPieChart=self.pieChartZero;
+    
+    self.annoForPieChartZero.contentLayer.opacity=1;
+    self.annoForPieChartOne.contentLayer.opacity=0;
+    self.currentAnno=self.annoForPieChartZero;
 }
 
 
@@ -160,7 +147,7 @@
     pieChart.adjustLabelAnchors=NO;
     pieChart.enableSeperator=YES;
     pieChart.delegate = self;
-    pieChart.centerAnchor=CGPointMake(0.2, 0.5);
+    pieChart.centerAnchor=CGPointMake(0.3, 0.5);
     self.pieChartZero=pieChart;
     
     CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:1 green:1 blue:1 alpha:0.1]];
@@ -172,17 +159,17 @@
     
     [self.hostView.hostedGraph addPlot:pieChart];
     
-    /*
-    CPTMutableTextStyle *style=[CPTMutableTextStyle textStyle];
-    style.fontSize=10;
-    style.color=[CPTColor blueColor];
-    CPTTextLayer *layer=[[CPTTextLayer alloc] initWithText:@"当前系统运行状况良好" style:style];
-    layer.anchorPoint=CGPointMake(0.5, 0.5);
-    CPTLayerAnnotation *anno=[[CPTLayerAnnotation alloc]initWithAnchorLayer:layer];
-    [self.pieChartZero addAnnotation:anno];
-     */
-
-
+    //add annotation to the right of pieChartZero
+    CPTMutableTextStyle *styleZero=[CPTMutableTextStyle textStyle];
+    styleZero.fontSize=10;
+    styleZero.color=[CPTColor lightGrayColor];
+    CPTTextLayer *layer=[[CPTTextLayer alloc] initWithText:@"当前系统运行状况良好\n无任何告警" style:styleZero];
+    CPTPlotSpaceAnnotation *anno=[[CPTPlotSpaceAnnotation alloc]initWithPlotSpace:self.pieChartZero.plotSpace anchorPlotPoint:@[@0.7,@0.5]];
+    anno.contentLayer=layer;
+    
+    self.annoForPieChartZero=anno;
+    [self.pieChartZero.plotArea addAnnotation:anno];
+    
 }
 
 -(void)configPieChartOne
@@ -199,7 +186,7 @@
     pieChart.adjustLabelAnchors=NO;
     pieChart.enableSeperator=YES;
     pieChart.delegate = self;
-    pieChart.centerAnchor=CGPointMake(0.2, 0.5);
+    pieChart.centerAnchor=CGPointMake(0.3, 0.5);
     self.pieChartOne=pieChart;
     
     CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
@@ -215,7 +202,18 @@
     pieChart.totalTextStyle=totalStyle;
     
     [self.hostView.hostedGraph addPlot:pieChart];
-
+    
+    //add annotation to the right of pieChartOne
+    CPTMutableTextStyle *style=[CPTMutableTextStyle textStyle];
+    style.fontSize=10;
+    style.color=[CPTColor lightGrayColor];
+    CPTTextLayer *layer=[[CPTTextLayer alloc] initWithText:@"告警级别 warning\n    数量 25\n    未读 12" style:style];
+    CPTPlotSpaceAnnotation *anno=[[CPTPlotSpaceAnnotation alloc]initWithPlotSpace:self.pieChartZero.plotSpace anchorPlotPoint:@[@0.7,@0.5]];
+    anno.contentLayer=layer;
+    self.annoForPieChartOne=anno;
+    [self.pieChartZero.plotArea addAnnotation:anno];
+    
+    
 }
 
 -(void)configPieChart
@@ -274,10 +272,12 @@
             [self.myPlotData addObject:[self.myPlotData[0] mutableCopy]];
             [self insertSeperatorData];
             self.pieChartOne.totalNumber=[self.myPlotData[0][2] intValue]; //manually set total number;
+            
         }
             break;
         default:
         {
+            [self.pieChart.plotArea removeAllAnnotations];
             [self insertSeperatorData];
         }
             break;
@@ -286,24 +286,23 @@
 
 -(void)changePlotData{
    
-    int itemNum=arc4random()%6;//0~5
-    //int itemNum=0;
+    //int itemNum=arc4random()%6;//0~5
+    int itemNum=1+arc4random()%2;
     
     
     if (itemNum==0) {
         [self.myPlotData removeAllObjects];
         [self checkPlotData];
         
+        
+        self.toBeVisibleAnno=self.annoForPieChartZero;
+        //if (self.currentAnno) {
+            [CPTAnimation animate:self.currentAnno.contentLayer property:@"opacity" from:1 to:0 duration:2];
+        //}
+        
         self.toBeVisible=self.pieChartZero;
         [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2 withDelay:0 animationCurve:CPTAnimationCurveBackIn delegate:self];
         
-        /*
-        [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:1];
-        [self.pieChartZero reloadData];
-        [self.pieChartZero reloadSliceFills];
-        [CPTAnimation animate:self.pieChartZero property:@"opacity" from:0 to:1 duration:1];
-        self.currentPieChart=self.pieChartZero;
-         */
         return;
     }
     if (itemNum==1) {
@@ -311,17 +310,15 @@
         [self.myPlotData addObject:[self.source[arc4random()%5] mutableCopy] ]; //add one random data;
         [self checkPlotData];
         
+        self.toBeVisibleAnno=self.annoForPieChartOne;
+        NSLog(@"%@",self.toBeVisibleAnno);
+        //if (self.currentAnno) {
+            [CPTAnimation animate:self.currentAnno.contentLayer property:@"opacity" from:1 to:0 duration:2];
+        //}
+        
         self.toBeVisible=self.pieChartOne;
         [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2 withDelay:0 animationCurve:CPTAnimationCurveBackIn delegate:self];
-         
         
-        /*
-        [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2];
-        [self.pieChartOne reloadData];
-        [self.pieChartOne reloadSliceFills];
-        [CPTAnimation animate:self.pieChartOne property:@"opacity" from:0 to:1 duration:2];
-        self.currentPieChart=self.pieChartOne;
-        */
         return;
     }
     
@@ -339,18 +336,14 @@
     [self checkPlotData];
     [self rearrangeData];
     
+    
+    self.toBeVisibleAnno=nil;
+    //if (self.currentAnno) {
+        [CPTAnimation animate:self.currentAnno.contentLayer property:@"opacity" from:1 to:0 duration:2];
+    //}
+    
     self.toBeVisible=self.pieChart;
     [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2 withDelay:0 animationCurve:CPTAnimationCurveBackIn delegate:self];
-    
-    /*
-    [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2];
-    
-    [self.pieChart reloadData]; //reload plotData and dataLabels
-    [self.pieChart reloadSliceFills];
-    
-    [CPTAnimation animate:self.pieChart property:@"opacity" from:0 to:1 duration:2];
-    self.currentPieChart=self.pieChart;
-     */
 }
 
 
@@ -403,9 +396,11 @@
         [right removeAllObjects];
         [self getCumulateArray];
         [self caculateLeft:left right:right];
+        /*
         if ([left count]==3 && [right count]==2) {
             NSLog(@"pause");
         }
+         */
         pass=[self passTest:left :right];
         if(!pass){
             [self shuffleData:left right:right];
@@ -705,6 +700,12 @@
     [self.toBeVisible reloadSliceFills];
     [CPTAnimation animate:self.toBeVisible property:@"opacity" from:0 to:1 duration:2];
     self.currentPieChart=self.toBeVisible;
+    
+    
+    
+    [CPTAnimation animate:self.toBeVisibleAnno.contentLayer property:@"opacity" from:0 to:1 duration:2];
+    self.currentAnno=self.toBeVisibleAnno;
+   
 }
 
 @end
