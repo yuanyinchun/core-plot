@@ -17,13 +17,15 @@
 @property (nonatomic,readwrite) NSMutableArray *source;
 
 @property (nonatomic,readwrite) CPTPieChart *currentPieChart;
-@property (nonatomic,readwrite) CPTPieChart *toBeVisible;
+@property (nonatomic,strong) CPTPieChart *toBeVisible;
 
 @property (nonatomic,strong) CPTPlotSpaceAnnotation *annoForPieChartZero;
 @property (nonatomic,strong) CPTPlotSpaceAnnotation *annoForPieChartOne;
 
 @property (nonatomic,strong) CPTPlotSpaceAnnotation *currentAnno;
-@property (nonatomic,readwrite) CPTPlotSpaceAnnotation *toBeVisibleAnno;
+@property (nonatomic,strong) CPTPlotSpaceAnnotation *toBeVisibleAnno;
+
+@property (nonatomic,strong) NSArray *testData;
 @end
 
 @implementation PieChartViewController
@@ -52,6 +54,7 @@
         [self.source addObject:[NSMutableArray arrayWithObjects:@"info",@6,@88, nil]];
         [self.source addObject:[NSMutableArray arrayWithObjects:@"fatal",@8,@31, nil]];
         
+        self.testData=@[@2,@0];
     }
     return self;
 }
@@ -147,7 +150,7 @@
     pieChart.adjustLabelAnchors=NO;
     pieChart.enableSeperator=YES;
     pieChart.delegate = self;
-    pieChart.centerAnchor=CGPointMake(0.3, 0.5);
+    pieChart.centerAnchor=CGPointMake(0.2, 0.5);
     self.pieChartZero=pieChart;
     
     CPTFill *shadowFill=[CPTFill fillWithColor:[CPTColor colorWithComponentRed:1 green:1 blue:1 alpha:0.1]];
@@ -160,10 +163,22 @@
     [self.hostView.hostedGraph addPlot:pieChart];
     
     //add annotation to the right of pieChartZero
-    CPTMutableTextStyle *styleZero=[CPTMutableTextStyle textStyle];
-    styleZero.fontSize=10;
-    styleZero.color=[CPTColor lightGrayColor];
-    CPTTextLayer *layer=[[CPTTextLayer alloc] initWithText:@"当前系统运行状况良好\n无任何告警" style:styleZero];
+    NSArray *attributionInfo=@[
+                               @[@"当前系统运行状况",@{
+                                 NSFontAttributeName:[UIFont systemFontOfSize:15],
+                                 NSForegroundColorAttributeName:[UIColor grayColor]
+                                 }
+                                 ],
+                               @[@"良好\n",@{
+                                 NSFontAttributeName:[UIFont systemFontOfSize:19],
+                                 NSForegroundColorAttributeName:self.myColor[@"notify"]}],
+                               @[@"无任何告警",@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}]
+                         ];
+    NSMutableAttributedString *goodInfo=[[NSMutableAttributedString alloc]initWithString:@""];
+    for (NSArray *array in attributionInfo) {
+        [goodInfo appendAttributedString:[[NSAttributedString alloc]initWithString:array[0] attributes:array[1]] ];
+    }
+    CPTTextLayer *layer=[[CPTTextLayer alloc] initWithAttributedText:goodInfo];
     CPTPlotSpaceAnnotation *anno=[[CPTPlotSpaceAnnotation alloc]initWithPlotSpace:self.pieChartZero.plotSpace anchorPlotPoint:@[@0.7,@0.5]];
     anno.contentLayer=layer;
     
@@ -186,7 +201,7 @@
     pieChart.adjustLabelAnchors=NO;
     pieChart.enableSeperator=YES;
     pieChart.delegate = self;
-    pieChart.centerAnchor=CGPointMake(0.3, 0.5);
+    pieChart.centerAnchor=CGPointMake(0.2, 0.5);
     self.pieChartOne=pieChart;
     
     CPTMutableLineStyle *lineStyle=[CPTMutableLineStyle lineStyle];
@@ -204,11 +219,8 @@
     [self.hostView.hostedGraph addPlot:pieChart];
     
     //add annotation to the right of pieChartOne
-    CPTMutableTextStyle *style=[CPTMutableTextStyle textStyle];
-    style.fontSize=10;
-    style.color=[CPTColor lightGrayColor];
-    CPTTextLayer *layer=[[CPTTextLayer alloc] initWithText:@"告警级别 warning\n    数量 25\n    未读 12" style:style];
-    CPTPlotSpaceAnnotation *anno=[[CPTPlotSpaceAnnotation alloc]initWithPlotSpace:self.pieChartZero.plotSpace anchorPlotPoint:@[@0.7,@0.5]];
+    CPTTextLayer *layer=[[CPTTextLayer alloc] init];
+    CPTPlotSpaceAnnotation *anno=[[CPTPlotSpaceAnnotation alloc]initWithPlotSpace:self.pieChartZero.plotSpace anchorPlotPoint:@[@0.6,@0.5]];
     anno.contentLayer=layer;
     self.annoForPieChartOne=anno;
     [self.pieChartZero.plotArea addAnnotation:anno];
@@ -272,53 +284,129 @@
             [self.myPlotData addObject:[self.myPlotData[0] mutableCopy]];
             [self insertSeperatorData];
             self.pieChartOne.totalNumber=[self.myPlotData[0][2] intValue]; //manually set total number;
-            
         }
             break;
         default:
         {
-            [self.pieChart.plotArea removeAllAnnotations];
             [self insertSeperatorData];
         }
             break;
     }
 }
 
+
+-(void)startAnimation
+{
+    CFTimeInterval duration=1;
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    animation.duration=duration;
+    animation.fromValue=[NSNumber numberWithFloat:1.0f];
+    animation.toValue=[NSNumber numberWithFloat:0.0f];
+    
+    [CATransaction begin];
+    
+    //hide self.currentAnno
+    CALayer *layer=self.currentAnno.contentLayer;
+    [layer addAnimation:animation forKey:@"opacity"];
+    layer.opacity=0.0f;
+    
+    
+    //hide self.currentPieChart
+    layer=self.currentPieChart;
+    [layer addAnimation:animation forKey:@"opacity"];
+    layer.opacity=0.0f;
+    
+    CATransaction.CompletionBlock=^{
+        [CATransaction begin];
+        
+        
+        [self.toBeVisible reloadData];
+        [self.toBeVisible reloadSliceFills];
+        
+        
+        //show self.toBeVisibleAnno;
+        CALayer *layer=self.toBeVisibleAnno.contentLayer;
+        animation.duration=2*duration;
+        animation.fromValue=[NSNumber numberWithFloat:0.0f];
+        animation.toValue=[NSNumber numberWithFloat:1.0f];
+        [layer addAnimation:animation forKey:@"opacity"];
+        layer.opacity=1.0f;
+        
+
+        //show self.toBeVisible
+        layer=self.toBeVisible;
+        [layer addAnimation:animation forKey:@"opacity"];
+        layer.opacity=1.0f;
+       
+        CATransaction.CompletionBlock=^{
+            self.currentPieChart=self.toBeVisible;
+            self.currentAnno=self.toBeVisibleAnno;
+        };
+        
+        [CATransaction commit];
+    };
+    
+    
+    [CATransaction commit];
+
+}
+
+
 -(void)changePlotData{
    
-    //int itemNum=arc4random()%6;//0~5
-    int itemNum=1+arc4random()%2;
+    int itemNum=arc4random()%6;//0~5
+    //int itemNum=1;
+    /*
+    static int i=0;
     
-    
+    int itemNum=[self.testData[i%2] intValue];
+    i++;
+    */
     if (itemNum==0) {
         [self.myPlotData removeAllObjects];
         [self checkPlotData];
         
         
         self.toBeVisibleAnno=self.annoForPieChartZero;
-        //if (self.currentAnno) {
-            [CPTAnimation animate:self.currentAnno.contentLayer property:@"opacity" from:1 to:0 duration:2];
-        //}
-        
         self.toBeVisible=self.pieChartZero;
-        [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2 withDelay:0 animationCurve:CPTAnimationCurveBackIn delegate:self];
+        [self startAnimation];
         
         return;
     }
     if (itemNum==1) {
         [self.myPlotData removeAllObjects];
         [self.myPlotData addObject:[self.source[arc4random()%5] mutableCopy] ]; //add one random data;
+        //change data
+        NSNumber *num=[NSNumber numberWithInt:arc4random() % (1000+1)];//0~100
+        self.myPlotData[0][2]=num;
+        //update annotaion info
+        NSArray *attributionInfo=@[
+                                   @[@"告警级别 ",@{
+                                         NSFontAttributeName:[UIFont systemFontOfSize:15],
+                                         NSForegroundColorAttributeName:[UIColor grayColor]
+                                         }
+                                     ],
+                                   @[self.myPlotData[0][0],@{
+                                         NSFontAttributeName:[UIFont systemFontOfSize:19],
+                                         NSForegroundColorAttributeName:self.myColor[self.myPlotData[0][0]]}],
+                                   @[@"\n    数量 ",@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
+                                   @[ [NSString stringWithFormat:@"%d", [self.myPlotData[0][2] intValue]] ,@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
+                                    @[@"\n    未读 " ,@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
+                                   @[[NSString stringWithFormat:@"%d", [self.myPlotData[0][1] intValue]] ,@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor whiteColor]}]
+                                   ];
+        NSMutableAttributedString *info=[[NSMutableAttributedString alloc]initWithString:@""];
+        for (NSArray *array in attributionInfo) {
+            [info appendAttributedString:[[NSAttributedString alloc]initWithString:array[0] attributes:array[1]] ];
+        }
+        CPTTextLayer *textLayer= (CPTTextLayer *)self.annoForPieChartOne.contentLayer;
+        textLayer.attributedText=info;
+        
         [self checkPlotData];
         
         self.toBeVisibleAnno=self.annoForPieChartOne;
-        NSLog(@"%@",self.toBeVisibleAnno);
-        //if (self.currentAnno) {
-            [CPTAnimation animate:self.currentAnno.contentLayer property:@"opacity" from:1 to:0 duration:2];
-        //}
-        
         self.toBeVisible=self.pieChartOne;
-        [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2 withDelay:0 animationCurve:CPTAnimationCurveBackIn delegate:self];
-        
+        [self startAnimation];
+
         return;
     }
     
@@ -338,12 +426,8 @@
     
     
     self.toBeVisibleAnno=nil;
-    //if (self.currentAnno) {
-        [CPTAnimation animate:self.currentAnno.contentLayer property:@"opacity" from:1 to:0 duration:2];
-    //}
-    
     self.toBeVisible=self.pieChart;
-    [CPTAnimation animate:self.currentPieChart property:@"opacity" from:1 to:0 duration:2 withDelay:0 animationCurve:CPTAnimationCurveBackIn delegate:self];
+    [self startAnimation];
 }
 
 
@@ -396,11 +480,6 @@
         [right removeAllObjects];
         [self getCumulateArray];
         [self caculateLeft:left right:right];
-        /*
-        if ([left count]==3 && [right count]==2) {
-            NSLog(@"pause");
-        }
-         */
         pass=[self passTest:left :right];
         if(!pass){
             [self shuffleData:left right:right];
@@ -552,27 +631,21 @@
     
     center=[self.cumulateArray[0][2] doubleValue]/2;
     double radius=center/total*2*M_PI;
-    //if(radius >=M_PI_2 && radius <=3*M_PI_2)
     if(radius >=0 && radius <=M_PI)
     {
-        //[left addObject:@0];
         [right addObject:@0];
     }
     else
-        //[right addObject:@0];
         [left addObject:@0];
     
     for (int i=2; i<[self.cumulateArray count]; i+=2) {
         center=[self.cumulateArray[i-1][2] doubleValue]+[self.myPlotData[i][2] doubleValue]/2;
         radius=center/total*2*M_PI;
-        // if(radius >=M_PI_2 && radius <=3*M_PI_2)
         if(radius >=0 && radius <=M_PI)
         {
-            //[left addObject:[NSNumber numberWithInt:i]];
             [right addObject:[NSNumber numberWithInt:i]];
         }
         else
-            //[right addObject:[NSNumber numberWithInt:i]];
             [left addObject:[NSNumber numberWithInt:i]];
     }
     
@@ -690,22 +763,6 @@
             return [[CPTFill alloc]initWithColor:[[CPTColor alloc]initWithCGColor:  color.CGColor                                             ]];
         }
     
-}
-
-#pragma mark - CPTAnimation Delegate
-
--(void)animationDidFinish:(CPTAnimationOperation *)operation
-{
-    [self.toBeVisible reloadData];
-    [self.toBeVisible reloadSliceFills];
-    [CPTAnimation animate:self.toBeVisible property:@"opacity" from:0 to:1 duration:2];
-    self.currentPieChart=self.toBeVisible;
-    
-    
-    
-    [CPTAnimation animate:self.toBeVisibleAnno.contentLayer property:@"opacity" from:0 to:1 duration:2];
-    self.currentAnno=self.toBeVisibleAnno;
-   
 }
 
 @end
