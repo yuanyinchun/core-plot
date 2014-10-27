@@ -389,9 +389,9 @@
                                    @[self.myPlotData[0][0],@{
                                          NSFontAttributeName:[UIFont systemFontOfSize:19],
                                          NSForegroundColorAttributeName:self.myColor[self.myPlotData[0][0]]}],
-                                   @[@"\n    数量 ",@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
+                                   @[@"\n      数量 ",@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
                                    @[ [NSString stringWithFormat:@"%d", [self.myPlotData[0][2] intValue]] ,@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
-                                    @[@"\n    未读 " ,@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
+                                    @[@"\n      未读 " ,@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor grayColor]}],
                                    @[[NSString stringWithFormat:@"%d", [self.myPlotData[0][1] intValue]] ,@{NSFontAttributeName:[UIFont systemFontOfSize:15],NSForegroundColorAttributeName:[UIColor whiteColor]}]
                                    ];
         NSMutableAttributedString *info=[[NSMutableAttributedString alloc]initWithString:@""];
