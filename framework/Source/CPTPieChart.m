@@ -795,7 +795,7 @@ static const CGFloat colorLookupTable[10][3] =
     NSString *totalStr=nil;
     
     if (self.totalNumber!=-1) {
-        totalStr=[NSString stringWithFormat:@"%d",self.totalNumber];
+        totalStr=[NSString stringWithFormat:@"%ld",self.totalNumber];
     }else{
         CGFloat total=0;
         NSUInteger tail=self.enableSeperator?2:1;
@@ -806,7 +806,7 @@ static const CGFloat colorLookupTable[10][3] =
         totalStr=[NSString stringWithFormat:@"%d",(int)total];
     }
     
-    float tmp=sqrtf(2)*self.pieInnerRadius/2;
+    float tmp=sqrtf(2)*((float)self.pieInnerRadius)/2;
     CGRect totalRect=CGRectMake(centerPoint.x-tmp, centerPoint.y-tmp, tmp*2, tmp*2);
     //NSLog(@"%@",NSStringFromCGRect(totalRect));
     
