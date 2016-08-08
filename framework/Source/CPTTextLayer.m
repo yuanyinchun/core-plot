@@ -5,6 +5,7 @@
 #import "CPTTextStylePlatformSpecific.h"
 #import "CPTUtilities.h"
 #import <tgmath.h>
+#import "CPTGraph.h"
 
 const CGFloat kCPTTextLayerMarginWidth = CPTFloat(2.0);
 

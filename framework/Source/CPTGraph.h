@@ -13,6 +13,7 @@
 @class CPTTheme;
 @class CPTTextStyle;
 @class CPTLayerAnnotation;
+@class CPTZoom;
 
 /// @name Graph
 /// @{
@@ -89,6 +90,12 @@ typedef NS_ENUM (NSInteger, CPTGraphLayerType) {
 @property (nonatomic, readwrite, strong, nullable) CPTLegend *legend;
 @property (nonatomic, readwrite, assign) CPTRectAnchor legendAnchor;
 @property (nonatomic, readwrite, assign) CGPoint legendDisplacement;
+/// @}
+
+///@name Zoom
+/// @{
+@property (nonatomic, readwrite, strong) CPTZoom *zoom;
+
 /// @}
 
 /// @name Data Source
