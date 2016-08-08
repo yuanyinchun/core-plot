@@ -13,6 +13,7 @@
 #import "CPTTextLayer.h"
 #import "CPTTheme.h"
 #import "NSCoderExtensions.h"
+#import "CPTZoom.h"
 
 /** @defgroup graphAnimation Graphs
  *  @brief Graph properties that can be animated using Core Animation.
@@ -35,6 +36,7 @@ NSString *const CPTGraphPlotSpaceNotificationKey       = @"CPTGraphPlotSpaceNoti
 @property (nonatomic, readwrite, strong, nullable) CPTLayerAnnotation *titleAnnotation;
 @property (nonatomic, readwrite, strong, nullable) CPTLayerAnnotation *legendAnnotation;
 @property (nonatomic, readwrite, assign) BOOL inTitleUpdate;
+@property (nonatomic, readwrite, strong) CPTLayerAnnotation *zoomAnnotation;
 
 -(void)plotSpaceMappingDidChange:(nonnull NSNotification *)notif;
 -(CGPoint)contentAnchorForRectAnchor:(CPTRectAnchor)anchor;
@@ -166,6 +168,9 @@ NSString *const CPTGraphPlotSpaceNotificationKey       = @"CPTGraphPlotSpaceNoti
 @synthesize titleAnnotation;
 @synthesize legendAnnotation;
 @synthesize inTitleUpdate;
+
+@synthesize zoom;
+@synthesize zoomAnnotation;
 
 #pragma mark -
 #pragma mark Init/Dealloc
@@ -734,6 +739,35 @@ NSString *const CPTGraphPlotSpaceNotificationKey       = @"CPTGraphPlotSpaceNoti
     [theme applyThemeToGraph:self];
 }
 
+pragma mark -
+#pragma mark Zoom
+-(void)setZoom:(CPTZoom *)newZoom
+{
+    if (newZoom !=zoom) {
+        zoom=newZoom;
+        CPTLayerAnnotation *theZoomAnnotation=self.zoomAnnotation;
+        if (zoom) {
+            if (theZoomAnnotation) {
+                theZoomAnnotation.contentLayer=zoom;
+            }else{
+                CPTLayerAnnotation *newZoomAnnotation=[[CPTLayerAnnotation alloc]initWithAnchorLayer:self];
+                newZoomAnnotation.contentLayer=zoom;
+                newZoomAnnotation.rectAnchor=CPTRectAnchorBottomRight;
+                newZoomAnnotation.contentAnchorPoint=CGPointMake(1.0,0.0);
+                newZoomAnnotation.displacement=CGPointMake(0, self.plotAreaFrame.paddingBottom);
+                [self addAnnotation:newZoomAnnotation];
+                self.zoomAnnotation=newZoomAnnotation;
+            }
+        }
+        else{
+            if (theZoomAnnotation) {
+                [self removeAnnotation:theZoomAnnotation];
+                self.zoomAnnotation=nil;
+            }
+        }
+    }
+}
+
 #pragma mark -
 #pragma mark Legend
 
@@ -1059,6 +1093,11 @@ NSString *const CPTGraphPlotSpaceNotificationKey       = @"CPTGraphPlotSpaceNoti
     if ( [self.legend pointingDeviceDownEvent:event atPoint:interactionPoint] ) {
         return YES;
     }
+	
+	// Zoom
+    if ([self.zoom pointingDeviceDownEvent:event atPoint:interactionPoint]) {
+        return YES;
+    }
 
     // Plot spaces
     // Plot spaces do not block events, because several spaces may need to receive
@@ -1123,6 +1162,11 @@ NSString *const CPTGraphPlotSpaceNotificationKey       = @"CPTGraphPlotSpaceNoti
     if ( !handledEvent && [self.legend pointingDeviceUpEvent:event atPoint:interactionPoint] ) {
         handledEvent = YES;
     }
+	
+	// Zoom
+    if (!handledEvent && [self.zoom pointingDeviceUpEvent:event atPoint:interactionPoint]) {
+        handledEvent = YES;
+    }
 
     // Plot spaces
     // Plot spaces do not block events, because several spaces may need to receive
@@ -1185,6 +1229,11 @@ NSString *const CPTGraphPlotSpaceNotificationKey       = @"CPTGraphPlotSpaceNoti
     if ( [self.legend pointingDeviceDraggedEvent:event atPoint:interactionPoint] ) {
         return YES;
     }
+	
+	// Zoom
+    if ( [self.legend pointingDeviceDraggedEvent:event atPoint:interactionPoint]) {
+        return YES;
+    }
 
     // Plot spaces
     // Plot spaces do not block events, because several spaces may need to receive
@@ -1244,6 +1293,11 @@ NSString *const CPTGraphPlotSpaceNotificationKey       = @"CPTGraphPlotSpaceNoti
 
     // Legend
     if ( [self.legend pointingDeviceCancelledEvent:event] ) {
+        return YES;
+    }
+	
+	// Zoom
+    if ( [self.zoom pointingDeviceCancelledEvent:event] ) {
         return YES;
     }
 
